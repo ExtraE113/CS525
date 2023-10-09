@@ -45,7 +45,7 @@ fprint_val<term> = fprint_term
 overload print with print_term
 overload fprint with fprint_term
 (* ****** ****** *)
-
+//
 implement
 fprint_term
 (out, t0) =
@@ -73,7 +73,7 @@ fprint!(out, "TMopr(", nm, ";", ts, ")")
 TMif0(t1, t2, t3) =>
 fprint!(out, "TMif0(", t1, ";", t2, ";", t3, ")")
 )
-
+//
 (* ****** ****** *)
 
 datatype
@@ -211,6 +211,30 @@ val-mylist_cons(v2, vs) = vs
 val-VALint(i1) = v1 and VALint(i2) = v2
 in
   VALint(i1 - i2)
+end
+| "*" =>
+let
+val-mylist_cons(v1, vs) = vs
+val-mylist_cons(v2, vs) = vs
+val-VALint(i1) = v1 and VALint(i2) = v2
+in
+  VALint(i1 * i2)
+end
+| "/" =>
+let
+val-mylist_cons(v1, vs) = vs
+val-mylist_cons(v2, vs) = vs
+val-VALint(i1) = v1 and VALint(i2) = v2
+in
+  VALint(i1 / i2)
+end
+| "%" =>
+let
+val-mylist_cons(v1, vs) = vs
+val-mylist_cons(v2, vs) = vs
+val-VALint(i1) = v1 and VALint(i2) = v2
+in
+  VALint(i1 % i2)
 end
 //
 | "<" =>
@@ -353,6 +377,16 @@ TMmul
 ( t1: term
 , t2: term): term =
 TMopr("*", mylist_pair(t1, t2))
+fun
+TMdiv
+( t1: term
+, t2: term): term =
+TMopr("/", mylist_pair(t1, t2))
+fun
+TMmod
+( t1: term
+, t2: term): term =
+TMopr("%", mylist_pair(t1, t2))
 
 (* ****** ****** *)
 
@@ -388,6 +422,24 @@ TMapp(f, TMlam("y", TMapp(TMapp(x, x), y)))))) end
 (* ****** ****** *)
 
 val
+TMfact = TMapp(Y', FACT) where
+{
+val FACT =
+let
+val f = TMvar"f"
+val x = TMvar"x" in
+TMlam("f",
+TMlam("x",
+TMif0(
+TMgte(x, TMint(1)),
+TMmul(x,
+TMapp(f,
+TMsub(x, TMint(1)))), TMint(1)))) end
+}
+
+(* ****** ****** *)
+
+val
 TMfibo = TMapp(Y', FIBO) where
 {
 val FIBO =
@@ -402,6 +454,17 @@ TMadd(
 TMapp(f, TMsub(x, TMint(2))),
 TMapp(f, TMsub(x, TMint(1)))), x))) end
 }
+
+(* ****** ****** *)
+
+val
+VALfact5 =
+term_eval0(TMapp(TMfact, TMint(5)))
+val () = println!("VALfact5 = ", VALfact5)
+val
+VALfact10 =
+term_eval0(TMapp(TMfact, TMint(10)))
+val () = println!("VALfact10 = ", VALfact10)
 
 (* ****** ****** *)
 
