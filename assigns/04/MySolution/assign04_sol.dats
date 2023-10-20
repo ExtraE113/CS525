@@ -151,7 +151,10 @@ datatype term =
 | TMvar of tvar
 | TMlam of (tvar, term)
 | TMapp of (term, term)
-//| TMtup of (term, term)
+| TMfst of term
+| TMsnd of term
+| TMtup of (term, term)
+
 //
 | TMopr of (topr, termlst)
 //
@@ -242,6 +245,14 @@ fprint!(out, "TMlam2(", x, ";", Tx, ";", tt, ")")
 |
 TMfix2(f, x, Tf, tt) =>
 fprint!(out, "TMfix2(", f, ";", x, ";", Tf, ";", tt, ")")
+| TMfst(tt) =>
+fprint!(out, "TMfst(", tt, ")")
+|
+TMsnd(tt) =>
+fprint!(out, "TMsnd(", tt, ")")
+|
+TMtup(t1, t2) =>
+fprint!(out, "TMtup(", t1, ";", t2, ")")
 //
 )
 //
@@ -275,6 +286,17 @@ implement
 term_type0(t) = term_type1(t, mylist_nil)
 
 
+extern
+fun
+error(msg: string): void
+
+implement error(msg) =
+        () where {
+    val () = println!(msg)
+    val x = exit(1)
+}
+
+
 implement
 term_type1
 (t0, e0) =
@@ -287,13 +309,26 @@ TMint(i0) => TPint
 TMbtf(b0) => TPbtf
 |
 TMstr(s0) => TPstr
-//
-//| TMtup(t1, t2) => TPtup(term_type1(t1, e0), term_type1(t2, e0))
-//| TMfst(t1) => T11 where {
-//        val T1 = term_type1(t1, e0)
-//        val T11 = case+ T1 of
-//        | TPtup(Ta, Tb) => Ta
-//        | _ => todo
+
+| TMtup(t1, t2) => TPtup(term_type1(t1, e0), term_type1(t2, e0))
+| TMfst(t1) => T11 where {
+        val T1 = term_type1(t1, e0)
+        val T11 = (case- T1 of
+                | TPtup(a, b) => a
+                | _ => TPint (* placeholder, wont ever be retured *) where {
+            val () = error("TMfst got non tuple argument")
+        }
+                  )
+}
+| TMsnd(t1) => T11 where {
+        val T1 = term_type1(t1, e0)
+        val T11 = (case- T1 of
+        | TPtup(a, b) => b
+        | _ => TPint (* placeholder, wont ever be retured *) where {
+            val () = error("TMsnd got non tuple argument")
+        }
+        )
+}
 //
 //}
 | TMvar(x0) =>
@@ -510,11 +545,21 @@ println!("TPfibo_type = ", TPfibo_type)
 val basic_gte = TMgte(TMint(5), TMint(6))
 val () = println!("GTE test 1, should type check to BTF: ", assign03_tpcheck(basic_gte))
 
-val wrong_types_gte = TMgte(TMint(5), TMbtf(true))
-val () = println!("GTE test 2, should not type check: ", assign03_tpcheck(wrong_types_gte))
+//val wrong_types_gte = TMgte(TMint(5), TMbtf(true))
+//val () = println!("GTE test 2, should not type check: ", assign03_tpcheck(wrong_types_gte))
 
 //val wrong_types_gte = TMgte(TMbtf(false), TMint(4))
 //val () = println!("GTE test 3, should not type check: ", assign03_tpcheck(wrong_types_gte))
+
+
+val tuple_fst = TMfst(TMtup(TMint(5), TMbtf(false)))
+val () = println!("Tuple test 1, should type check to int: ", assign03_tpcheck(tuple_fst))
+
+val tuple_snd = TMsnd(TMtup(TMint(5), TMbtf(false)))
+val () = println!("Tuple test 2, should type check to btf: ", assign03_tpcheck(tuple_snd))
+
+//val tuple_err = TMsnd(TMadd(TMint(4), TMint(4)))
+//val () = println!("Tuple test 3, should not type check: ", assign03_tpcheck(tuple_err))
 
 
 
