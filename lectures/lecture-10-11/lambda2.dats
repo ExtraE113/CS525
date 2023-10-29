@@ -56,53 +56,55 @@ fprint_val<type> = fprint_type
 overload print with print_type
 overload fprint with fprint_type
 (* ****** ****** *)
+//
 implement
 fprint_type
-(out, tp) =
+(out, T0) =
 (
-case+ tp of
+case+ T0 of
 |
 TPbas(nm) =>
 fprint!(out, "TPbas(", nm, ")")
 |
-TPfun(tp1, tp2) =>
-fprint!(out, "TPfun(", tp1, ";", tp2, ")")
+TPfun(T1, T2) =>
+fprint!(out, "TPfun(", T1, ";", T2, ")")
 |
-TPtup(tp1, tp2) =>
-fprint!(out, "TPtup(", tp1, ";", tp2, ")")
+TPtup(T1, T2) =>
+fprint!(out, "TPtup(", T1, ";", T2, ")")
 )
+//
 (* ****** ****** *)
 //
 extern
 fun
 type_equal
-(t1: type, t2: type): bool
+(T1: type, T2: type): bool
 overload = with type_equal
 //
 (* ****** ****** *)
 //
 implement
 type_equal
-( t1, t2 ) =
+( T1, T2 ) =
 (
-case+ t1 of
+case+ T1 of
 |
 TPbas(nm1) =>
-(case+ t2 of
+(case+ T2 of
 |
 TPbas(nm2) => (nm1 = nm2) | _ => false)
 |
-TPfun(t11, t12) =>
-(case+ t2 of
+TPfun(T11, T12) =>
+(case+ T2 of
 |
-TPfun(t21, t22) =>
-( t11 = t21 && t12 = t22 ) | _ => false)
+TPfun(T21, T22) =>
+( T11 = T21 && T12 = T22 ) | _ => false)
 |
-TPtup(t11, t12) =>
-(case+ t2 of
+TPtup(T11, T12) =>
+(case+ T2 of
 |
-TPtup(t21, t22) =>
-( t11 = t21 && t12 = t22 ) | _ => false)
+TPtup(T21, T22) =>
+( T11 = T21 && T12 = T22 ) | _ => false)
 )
 //
 (* ****** ****** *)
@@ -128,6 +130,10 @@ datatype term =
 ( tvar(*x*)
 , term(*t1*), term(*t2*))
 //
+| TMfst of (term)
+| TMsnd of (term)
+| TMtup of (term, term)
+//
 | TMfix of
   (tvar(*f*), tvar(*x*), term)
 //
@@ -143,7 +149,6 @@ where termlst = mylist(term)
 typedef tpctx = mylist(@(tvar, type))
 
 (* ****** ****** *)
-
 extern
 fun
 print_term(t0:term): void
@@ -199,6 +204,18 @@ fprint!
 TMlet(x, t1, t2) =>
 fprint!
 (out, "TMlet(", x, ";", t1, ";", t2, ")")
+//
+|
+TMfst(tt) =>
+fprint!(out, "TMfst(", tt, ")")
+|
+TMsnd(tt) =>
+fprint!(out, "TMsnd(", tt, ")")
+|
+TMtup(t1, t2) =>
+(
+ fprint!(out, "TMtup(", t1, ";", t2, ")"))
+//
 |
 TMfix(f, x, tt) =>
 fprint!(out, "TMfix(", f, ";", x, ";", tt, ")")
@@ -239,7 +256,7 @@ tpctx_lookup(tpctx, tvar): type
 
 implement
 term_type1
-(t0, e0) =
+(t0, c0) =
 (
 case+ t0 of
 //
@@ -252,7 +269,7 @@ TMstr(s0) => TPstr
 //
 |
 TMvar(x0) =>
-tpctx_lookup(e0, x0)
+tpctx_lookup(c0, x0)
 //
 |
 TMapp(t1, t2) =>
@@ -260,11 +277,11 @@ TMapp(t1, t2) =>
   T12 ) where
 {
 val T1 =
-term_type1(t1, e0)
+term_type1(t1, c0)
 val-
 TPfun(T11, T12) = T1
 val () =
-term_type1_ck(t2, T11, e0)
+term_type1_ck(t2, T11, c0)
 }
 //
 |
@@ -275,23 +292,53 @@ TMif0
 {
 val () =
 term_type1_ck
-(t1, TPbtf, e0)
+(t1, TPbtf, c0)
 val T2 =
-term_type1(t2, e0)
+term_type1(t2, c0)
 val () =
-term_type1_ck(t3, T2, e0)
+term_type1_ck(t3, T2, c0)
 }
+//
+|TMfst(tt) =>
+let
+val-
+TPtup(T1, _) =
+term_type1(tt, c0) in T1 end
+//
+|TMsnd(tt) =>
+let
+val-
+TPtup(_, T2) =
+term_type1(tt, c0) in T2 end
+//
+|
+TMtup
+(t1, t2) =>
+TPtup(T1, T2) where
+{
+val T1 = term_type1(t1, c0)
+val T2 = term_type1(t2, c0) }
+//
+|
+TMlet
+(x1, t1, t2) =>
+(
+term_type1(t2, c1)) where
+{ val T1 =
+  term_type1(t1, c0)
+  val c1 =
+  mylist_cons((x1, T1), c0) }
 //
 |
 TMlam2
 (x0, Tx, tt) =>
 let
-val e1 =
-mylist_cons((x0, Tx), e0)
+val c1 =
+mylist_cons((x0, Tx), c0)
 in//let
   TPfun(Tx, Tt) where
 {
-  val Tt = term_type1(tt, e1)
+  val Tt = term_type1(tt, c1)
 }
 end//end-of-[TMlam2(x0,Tx,tt)]
 //
@@ -301,15 +348,15 @@ TMfix2
 let
 val-
 TPfun(Tx, Ty) = Tf
-val e1 =
-mylist_cons((x0, Tx), e0)
-val e2 =
-mylist_cons((f0, Tf), e1)
+val c1 =
+mylist_cons((x0, Tx), c0)
+val c2 =
+mylist_cons((f0, Tf), c1)
 in//let
   Tf where
 {
   val () =
-  term_type1_ck(tt, Ty, e2)
+  term_type1_ck(tt, Ty, c2)
 }
 end//end-of-[TMlam2(x0,Tx,tt)]
 //
@@ -321,7 +368,7 @@ val () =
 println!("term_type1: t0 = ", t0)
 }
 //
-) (* end-of-[term_type1(t0, e0)] *)
+) (* end-of-[term_type1(t0, c0)] *)
 
 (* ****** ****** *)
 
