@@ -4,16 +4,13 @@ CS525-2023-Fall: midterm
 *)
 (* ****** ****** *)
 #include
-"share\
-/atspre_staload.hats"
+"share/atspre_staload.hats"
 (* ****** ****** *)
 //
-#staload
-"./../midterm.sats"//opened
+#staload "./../midterm.sats"//opened
 //
 (* ****** ****** *)
-#staload
-"./../../../mylib/mylib.dats"
+#staload "./../../../mylib/mylib.dats"
 (* ****** ****** *)
 exception TypeError of ()
 (* ****** ****** *)
@@ -445,6 +442,72 @@ val () =
 term_type1_ck(t1, TPstr, c0)
 val () =
 term_type1_ck(t2, TPint, c0) }
+| "print" => TPnil where {
+val-
+mylist_cons(t1, ts) = ts
+val () =
+term_type1_ck(t1, TPint, c0)
+}
+| "prchr" => TPnil where {
+val-
+mylist_cons(t1, ts) = ts
+val () =
+term_type1_ck(t1, TPchr, c0)
+}
+| "prstr" => TPnil where {
+val-
+mylist_cons(t1, ts) = ts
+val () =
+term_type1_ck(t1, TPstr, c0)
+}
+| "ref_get" => referenced_type where {
+val-
+mylist_cons(t1, ts) = ts
+val arg_type = term_type1(t1, c0)
+val-
+TPref(referenced_type) = arg_type
+}
+| "ref_set" => TPnil where {
+val-
+mylist_cons(t1, ts) = ts
+val-
+mylist_cons(t2, ts) = ts
+val inp_type = term_type1(t2, c0)
+(* check that the first argument (the reference) is of type TPref(imp_type) where imp type is the type of the second argument*)
+val () = term_type1_ck(t1, TPref(inp_type), c0)
+}
+| "ref_new" => TPref(arg_type) where {
+val-
+mylist_cons(t1, ts) = ts
+val arg_type = term_type1(t1, c0)
+}
+| "list_new" => TPlist(element_type) where {
+val-mylist_cons(t1, ts) = ts
+(* list_new takes an argument, the argument is an
+ignored-at-runtime element of the appropreate type.
+this is essentially a type annotation, but using the annotation
+term doesnt work here because it wraps the term, not the other way
+around. this is a fine work around and has some advantages, like
+allowing types to be calculated from complex terms instead of
+specified explicitly *)
+val element_type = term_type1(t1, c0)
+}
+| "list_nilq" => TPbtf where {
+val-mylist_cons(t1, ts) = ts
+val-TPlist(_) = term_type1(t1, c0) (* checks that t1 is a list of some type*)
+}
+| "list_consq" => TPbtf where {
+val-mylist_cons(t1, ts) = ts
+val-TPlist(_) = term_type1(t1, c0) (* checks that t1 is a list of some type*)
+}
+| "list_uncons1" => t where {
+val-mylist_cons(t1, ts) = ts
+val-TPlist(t) = term_type1(t1, c0)
+}
+| "list_uncons2" => t where {
+val-mylist_cons(t1, ts) = ts
+val t = term_type1(t1, c0)
+}
 //
 (* ****** ****** *)
 //
@@ -573,15 +636,6 @@ in//let
 }
 end // let // end-of-[TMfixt(x0,Tx,tt)]
 //
-(*
-| _(*unsupported*) =>
-(
-exit(1) ) where
-{
-val () =
-println!("term_type1: t0 = ", t0)
-}
-*)
 //
 ) (*case+*) // end-of-[term_type1(t0, c0)]
 

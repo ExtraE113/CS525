@@ -4,12 +4,10 @@ CS525-2023-Fall: midterm
 *)
 (* ****** ****** *)
 //
-#staload
-"./../midterm.sats"//opened
+#staload "./../midterm.sats"//opened
 //
 (* ****** ****** *)
-#staload
-"./../../../mylib/mylib.dats"
+#staload "./../../../mylib/mylib.dats"
 (* ****** ****** *)
 (* ****** ****** *)
 //

@@ -3,17 +3,14 @@
 CS525-2023-Fall: midterm
 *)
 (* ****** ****** *)
-#include
-"share\
-/atspre_staload.hats"
+#include "share/atspre_staload.hats"
+
 (* ****** ****** *)
 //
-#staload
-"./../midterm.sats"//opened
+#staload "./../midterm.sats" //opened
 //
 (* ****** ****** *)
-#staload
-"./../../../mylib/mylib.dats"
+#staload "./../../../mylib/mylib.dats"
 (* ****** ****** *)
 implement main0() = ((*void*))
 (* ****** ****** *)
@@ -227,7 +224,7 @@ in//let
 println!
 ("TPomega = ", TPomega)
 end // end-of-let
-with ~TypeError() => println!("TPomega: type error!")
+with ~TypeError() => println!("TPomega: type error!") (* this is correct, Omega cannot be typed *)
 
 (* ****** ****** *)
 

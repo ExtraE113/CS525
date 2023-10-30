@@ -3,17 +3,13 @@
 CS525-2023-Fall: midterm
 *)
 (* ****** ****** *)
-#include
-"share\
-/atspre_staload.hats"
+#include "share/atspre_staload.hats"
 (* ****** ****** *)
 //
-#staload
-"./../midterm.sats"//opened
+#staload "./../midterm.sats"//opened
 //
 (* ****** ****** *)
-#staload
-"./../../../mylib/mylib.dats"
+#staload "./../../../mylib/mylib.dats"
 (* ****** ****** *)
 exception EXNstr_get_at
 (* ****** ****** *)
@@ -247,6 +243,43 @@ let
 val-
 mylist_cons(v1, vs) = vs in VALref(ref(v1))
 end // end of [ref_new]
+| "list_new"  => VALlst(mylist_nil)
+| "list_nilq" =>
+let
+val-mylist_cons(v1, vs) = vs
+val-VALlst(a) = v1
+in
+  case+ a of
+  | mylist_cons(x, y) => VALbtf(false)
+  | mylist_nil() => VALbtf(true)
+end
+| "list_consq" =>
+let
+val-mylist_cons(v1, vs) = vs
+val-VALlst(a) = v1
+in
+  case+ a of
+  | mylist_cons(x, y) => VALbtf(true)
+  | mylist_nil() => VALbtf(false)
+end
+| "list_uncons1" =>
+let
+val-mylist_cons(v1, vs) = vs
+val-VALlst(a) = v1
+in
+    case+ a of
+    | mylist_cons(x, y) => x
+    | mylist_nil() => $raise EXNlist_uncons1
+end
+| "list_uncons2" =>
+let
+val-mylist_cons(v1, vs) = vs
+val-VALlst(a) = v1
+in
+case+ a of
+| mylist_cons(x, y) => VALlst(y) (* need to re-wrap in VAL*)
+| mylist_nil() => $raise EXNlist_uncons2
+end
 //
 (* ****** ****** *)
 (*

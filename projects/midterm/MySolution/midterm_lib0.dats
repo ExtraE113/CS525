@@ -3,19 +3,14 @@
 CS525-2023-Fall: midterm
 *)
 (* ****** ****** *)
-#include
-"share\
-/atspre_staload.hats"
+#include "share/atspre_staload.hats"
 (* ****** ****** *)
 //
-#staload
-"./../midterm.sats"//opened
-#staload
-"./../midterm_lib0.sats"//opened
+#staload "./../midterm.sats"//opened
+#staload "./../midterm_lib0.sats"//opened
 //
 (* ****** ****** *)
-#staload
-"./../../../mylib/mylib.dats"
+#staload "./../../../mylib/mylib.dats"
 (* ****** ****** *)
 val TPnil = TPbas("nil")
 val TPint = TPbas("int")
