@@ -243,7 +243,14 @@ let
 val-
 mylist_cons(v1, vs) = vs in VALref(ref(v1))
 end // end of [ref_new]
-| "list_new"  => VALlst(mylist_nil)
+| "list_new"  => VALlst(mylist_nil())
+| "list_cons" => let
+val-mylist_cons(v1, vs) = vs
+val-mylist_cons(v2, vs) = vs
+val-VALlst(tail) = v2
+in
+VALlst(mylist_cons(v1, tail))
+end
 | "list_nilq" =>
 let
 val-mylist_cons(v1, vs) = vs
@@ -280,6 +287,45 @@ case+ a of
 | mylist_cons(x, y) => VALlst(y) (* need to re-wrap in VAL*)
 | mylist_nil() => $raise EXNlist_uncons2
 end
+| "llist_new" => VALnil()
+| "llist_nilq" =>
+let
+val-mylist_cons(v1, vs) = vs
+in
+case- v1 of
+| VALtup(x, y) => VALbtf(false)
+| VALnil() => VALbtf(true)
+end
+| "llist_consq" =>
+let
+val-mylist_cons(v1, vs) = vs
+in
+    case- v1 of
+    | VALtup(a, b) => VALbtf(true)
+    | VALnil() => VALbtf(false)
+end
+| "llist_uncons1" =>
+let
+val-mylist_cons(v1, vs) = vs
+val-VALtup(a, b) = v1
+in
+a
+end
+| "llist_uncons2" =>
+let
+val-mylist_cons(v1, vs) = vs
+val-VALtup(a, b) = v1
+in
+b
+end
+(*| "llist_cons" =>
+let
+val-mylist_cons(v1, vs) = vs
+val-mylist_cons(v2, vs) = vs
+in
+        (* something here todo *)
+end *)
+
 //
 (* ****** ****** *)
 (*
@@ -314,10 +360,10 @@ end // let // end of [TMif0(...)]
 |
 TMlet(x1, t1, t2) =>
 let
-val v1 = term_eval1(t1, e0)
+val t1_evaluated = term_eval1(t1, e0)
 in
   term_eval1
-  (t2, mylist_cons((x1, v1), e0))
+  (t2, mylist_cons((x1, t1_evaluated), e0))
 end
 //
 |

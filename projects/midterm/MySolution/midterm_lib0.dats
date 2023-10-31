@@ -92,6 +92,39 @@ TMmod
 , t2: term): term =
 TMopr("%", mylist_pair(t1, t2))
 //
+fun
+TMllist_nilq(t1: term): term =
+TMopr("llist_nilq", mylist_sing(t1))
+
+fun
+TMllist_empty(t1: term): term =
+TMllist_nilq(t1)
+
+fun
+TMllist_nil(): term =
+TMopr("llist_new", mylist_nil())
+
+fun
+TMllist_uncons1(t1: term): term =
+TMopr("llist_uncons1", mylist_sing(t1))
+
+fun
+TMllist_head(t1: term): term =
+TMllist_uncons1(t1)
+
+fun
+TMllist_uncons2(t1: term): term =
+TMopr("llist_uncons2", mylist_sing(t1))
+
+fun
+TMllist_tail(t1: term): term =
+TMllist_uncons2(t1)
+
+fun
+TMllist_cons(t1: term, t2: term): term =
+TMopr("llist_cons", mylist_pair(t1, t2))
+
+
 (* ****** ****** *)
 fun
 TMsuc
@@ -108,6 +141,17 @@ fun
 TMstr_get_at
 (cs: term, i0: term): term =
 TMopr("str_get_at", mylist_pair(cs, i0))
+
+fun
+TMref_new(t1: term): term =
+TMopr("ref_new", mylist_sing(t1))
+
+fun
+TMref_set(t1: term, t2:term): term =
+TMopr("ref_set", mylist_pair(t1, t2))
+
+fun TMref_get(t1: term): term =
+TMopr("ref_get", mylist_sing(TMvar("x")))
 (* ****** ****** *)
 //
 fun

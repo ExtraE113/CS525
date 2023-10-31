@@ -59,8 +59,6 @@ TPxyz(r2) => (r1 = r2)
 //
 |
 TPref(T1) => occurs(T1)
-|
-TPlazy(T1) => occurs(T1)
 //
 |
 TPlist(T1) => occurs(T1)
@@ -159,13 +157,6 @@ case+ T2 of
 |
 TPref(T20) =>
 unify(T10, T20) | _(*non-TPref*) => false)
-|
-TPlazy(T10) =>
-(
-case+ T2 of
-|
-TPlazy(T20) =>
-unify(T10, T20) | _(*non-TPlazy*) => false)
 //
 |
 TPlist(T10) =>
@@ -313,8 +304,13 @@ val T1 = type_norm(T1)
 //
 val-
 TPfun(T11, T12) = T1
+//val () = println!("T11 is ", T11)
+//val () = println!("T12 is ", T12)
+//val () = println!("t2 is ", t2)
+//val () = println!("type of t2 is ", term_type1(t2, c0))
 val () =
-term_type1_ck(t2, T11, c0)
+term_type1_ck(t2, T11, c0, "Error while typechecking TMapp. Code 308")
+//val () = println!("type check 308 passed")
 }
 //
 |
@@ -329,9 +325,9 @@ mylist_cons(t1, ts) = ts
 val-
 mylist_cons(t2, ts) = ts
 val () =
-term_type1_ck(t1, TPint, c0)
+term_type1_ck(t1, TPint, c0, "Error while type checking >, t1 is not int. Code 323")
 val () =
-term_type1_ck(t2, TPint, c0) }
+term_type1_ck(t2, TPint, c0, "Error while type checking >, t2 is not int. Code 325") }
 //
 | "<" => TPbtf where
 {
@@ -340,9 +336,9 @@ mylist_cons(t1, ts) = ts
 val-
 mylist_cons(t2, ts) = ts
 val () =
-term_type1_ck(t1, TPint, c0)
+term_type1_ck(t1, TPint, c0, "Error while type checking <, t1 is not int. Code 334")
 val () =
-term_type1_ck(t2, TPint, c0) }
+term_type1_ck(t2, TPint, c0, "Error while type checking <, t2 is not int. Code 336") }
 //
 | ">=" => TPbtf where
 {
@@ -351,9 +347,9 @@ mylist_cons(t1, ts) = ts
 val-
 mylist_cons(t2, ts) = ts
 val () =
-term_type1_ck(t1, TPint, c0)
+term_type1_ck(t1, TPint, c0, "Error while type checking >=, t1 is not int. Code 345")
 val () =
-term_type1_ck(t2, TPint, c0) }
+term_type1_ck(t2, TPint, c0, "Error while type checking >-, t2 is not int. Code 347") }
 //
 | "<=" => TPbtf where
 {
@@ -362,9 +358,9 @@ mylist_cons(t1, ts) = ts
 val-
 mylist_cons(t2, ts) = ts
 val () =
-term_type1_ck(t1, TPint, c0)
+term_type1_ck(t1, TPint, c0, "Error while type checking <=, t1 is not int. Code 356")
 val () =
-term_type1_ck(t2, TPint, c0) }
+term_type1_ck(t2, TPint, c0, "Error while type checking <=, t2 is not int. Code 358") }
 //
 | "+" => TPint where
 {
@@ -373,9 +369,9 @@ mylist_cons(t1, ts) = ts
 val-
 mylist_cons(t2, ts) = ts
 val () =
-term_type1_ck(t1, TPint, c0)
+term_type1_ck(t1, TPint, c0, "Error while type checking +, t1 is not int. Code 367")
 val () =
-term_type1_ck(t2, TPint, c0) }
+term_type1_ck(t2, TPint, c0, "Error while type checking +, t2 is not int. Code 369") }
 //
 | "-" => TPint where
 {
@@ -384,9 +380,9 @@ mylist_cons(t1, ts) = ts
 val-
 mylist_cons(t2, ts) = ts
 val () =
-term_type1_ck(t1, TPint, c0)
+term_type1_ck(t1, TPint, c0, "Error while type checking -, t1 is not int. Code 378")
 val () =
-term_type1_ck(t2, TPint, c0) }
+term_type1_ck(t2, TPint, c0, "Error while type checking -, t2 is not int. Code 380") }
 //
 | "*" => TPint where
 {
@@ -395,9 +391,9 @@ mylist_cons(t1, ts) = ts
 val-
 mylist_cons(t2, ts) = ts
 val () =
-term_type1_ck(t1, TPint, c0)
+term_type1_ck(t1, TPint, c0, "Error while type checking *, t1 is not int. Code 389")
 val () =
-term_type1_ck(t2, TPint, c0) }
+term_type1_ck(t2, TPint, c0, "Error while type checking *, t2 is not int. Code 391") }
 //
 | "/" => TPint where
 {
@@ -406,9 +402,9 @@ mylist_cons(t1, ts) = ts
 val-
 mylist_cons(t2, ts) = ts
 val () =
-term_type1_ck(t1, TPint, c0)
+term_type1_ck(t1, TPint, c0, "Error while type checking /, t1 is not int. Code 400")
 val () =
-term_type1_ck(t2, TPint, c0) }
+term_type1_ck(t2, TPint, c0, "Error while type checking /, t2 is not int. Code 402") }
 //
 | "%" => TPint where
 {
@@ -417,9 +413,9 @@ mylist_cons(t1, ts) = ts
 val-
 mylist_cons(t2, ts) = ts
 val () =
-term_type1_ck(t1, TPint, c0)
+term_type1_ck(t1, TPint, c0, "Error while type checking %, t1 is not int. Code 411")
 val () =
-term_type1_ck(t2, TPint, c0) }
+term_type1_ck(t2, TPint, c0, "Error while type checking %, t2 is not int. Code 413") }
 //
 (* ****** ****** *)
 //
@@ -429,7 +425,7 @@ term_type1_ck(t2, TPint, c0) }
 val-
 mylist_cons(t1, ts) = ts
 val () =
-term_type1_ck(t1, TPstr, c0) }
+term_type1_ck(t1, TPstr, c0, "Error while type checking str_len, t1 is not str. Code 423") }
 //
 |
 "str_get_at" => TPchr where
@@ -439,33 +435,32 @@ mylist_cons(t1, ts) = ts
 val-
 mylist_cons(t2, ts) = ts
 val () =
-term_type1_ck(t1, TPstr, c0)
+term_type1_ck(t1, TPstr, c0, "Error while type checking str_get_at, t1 is not str. Code 433")
 val () =
-term_type1_ck(t2, TPint, c0) }
+term_type1_ck(t2, TPint, c0, "Error while type checking str_get_at, t2 is not int. Code 435") }
 | "print" => TPnil where {
 val-
 mylist_cons(t1, ts) = ts
 val () =
-term_type1_ck(t1, TPint, c0)
+term_type1_ck(t1, TPint, c0, "Error while type checking print, t1 is not int. Code 440")
 }
 | "prchr" => TPnil where {
 val-
 mylist_cons(t1, ts) = ts
 val () =
-term_type1_ck(t1, TPchr, c0)
+term_type1_ck(t1, TPchr, c0, "Error while type checking prchr, t1 is not str. Code 446")
 }
 | "prstr" => TPnil where {
 val-
 mylist_cons(t1, ts) = ts
 val () =
-term_type1_ck(t1, TPstr, c0)
+term_type1_ck(t1, TPstr, c0, "Error while type checking prstr, t1 is not str. Code 452")
 }
 | "ref_get" => referenced_type where {
 val-
 mylist_cons(t1, ts) = ts
-val arg_type = term_type1(t1, c0)
-val-
-TPref(referenced_type) = arg_type
+val referenced_type = tpxyz_new()
+val () = term_type1_ck(t1, TPref(referenced_type), c0, "Error while typechecking ref_get, t1 not a reference. Code 464")
 }
 | "ref_set" => TPnil where {
 val-
@@ -474,23 +469,19 @@ val-
 mylist_cons(t2, ts) = ts
 val inp_type = term_type1(t2, c0)
 (* check that the first argument (the reference) is of type TPref(imp_type) where imp type is the type of the second argument*)
-val () = term_type1_ck(t1, TPref(inp_type), c0)
+val () = term_type1_ck(t1, TPref(inp_type), c0, "Error type checking ref_set, t1 is not TPref(inp_type). Code 468")
 }
 | "ref_new" => TPref(arg_type) where {
 val-
 mylist_cons(t1, ts) = ts
 val arg_type = term_type1(t1, c0)
 }
-| "list_new" => TPlist(element_type) where {
+| "list_new" => TPlist(tpxyz_new())
+| "list_cons" => TPlist(T1) where {
 val-mylist_cons(t1, ts) = ts
-(* list_new takes an argument, the argument is an
-ignored-at-runtime element of the appropreate type.
-this is essentially a type annotation, but using the annotation
-term doesnt work here because it wraps the term, not the other way
-around. this is a fine work around and has some advantages, like
-allowing types to be calculated from complex terms instead of
-specified explicitly *)
-val element_type = term_type1(t1, c0)
+val-mylist_cons(t2, ts) = ts
+val T1 = term_type1(t1, c0)
+val () = term_type1_ck(t2, TPlist(T1), c0, "Error type checking list_cons. t2 is not of type TPlist(T1). Code 480")
 }
 | "list_nilq" => TPbtf where {
 val-mylist_cons(t1, ts) = ts
@@ -507,6 +498,37 @@ val-TPlist(t) = term_type1(t1, c0)
 | "list_uncons2" => t where {
 val-mylist_cons(t1, ts) = ts
 val t = term_type1(t1, c0)
+}
+| "llist_new" => TPllist(tpxyz_new())
+| "llist_cons" => TPllist(T1) where {
+val-mylist_cons(t1, ts) = ts
+val-mylist_cons(t2, ts) = ts
+val T1 = term_type1(t1, c0)
+val () = term_type1_ck(t2, TPllist(T1), c0,
+                       "Error while typechecking llist_cons, t2 is not of type TPllist(T1). Code 504")
+}
+| "llist_nilq" => TPbtf where {
+val-mylist_cons(t1, ts) = ts
+val () = term_type1_ck(t1, TPllist(tpxyz_new()), c0,
+"Error while typechecking llist_nilq, t1 is not of type TPllist(tpxyz_new()). Code 509")
+}
+| "list_consq" => TPbtf where {
+val-mylist_cons(t1, ts) = ts
+val-TPllist(_) = term_type1(t1, c0) (* checks that t1 is a list of some type*)
+}
+| "llist_uncons1" => T1 where {
+val-mylist_cons(t1, ts) = ts
+val T1 = tpxyz_new()
+val () = term_type1_ck(t1, TPllist(T1), c0,
+                       "Error while type checking llist_uncons1, t1 is not TPllist(tpxyz_new()). Code 515")
+}
+| "llist_uncons2" => T1 where {
+val-mylist_cons(t1, ts) = ts
+val element_type = tpxyz_new()
+val () = term_type1_ck(t1, TPllist(element_type), c0,
+"Error while type checking llist_uncons2, t1 is not TPllist(tpxyz_new()). Code 529")
+val T = term_type1(t1, c0)
+val T1 = TPfun(TPnil, T)
 }
 //
 (* ****** ****** *)
@@ -529,11 +551,11 @@ TMif0
 {
 val () =
 term_type1_ck
-(t1, TPbtf, c0)
+(t1, TPbtf, c0, "Error while type checking TMif0, t1 is not btf. Code 545")
 val T2 =
 term_type1(t2, c0)
 val () =
-term_type1_ck(t3, T2, c0)
+term_type1_ck(t3, T2, c0, "Error while type checking TMif0, t1 is not the same type as t2. Code 549")
 }
 //
 |TMfst(tt) =>
@@ -585,9 +607,9 @@ TMfix
 (f0, x0, tt) =>
 let
 //
-val Tx = tpxyz_new()
-val Ty = tpxyz_new()
-val Tf = TPfun(Tx, Ty)
+val Tx: type = tpxyz_new()
+val Ty: type = tpxyz_new()
+val Tf: type = TPfun(Tx, Ty)
 //
 val c1 =
 mylist_cons((x0, Tx), c0)
@@ -596,15 +618,18 @@ mylist_cons((f0, Tf), c1)
 in//let
   Tf where
 {
-  val () =
-  term_type1_ck(tt, Ty, c2)
+  val () = println!("tt is of type ", term_type1(tt, c2))
+  val () = println!("Ty is ", Ty)
+  val () = println!("c2 is ", c2)
+val () =
+  term_type1_ck(tt, Ty, c2, "Error while typechecking TMfix, tt not of type Ty in c2. Code 619")
 }
 end//end-of-[TMfix(f0,x0,tt)]
 //
 |
 TManno(t1, T1) =>
 (
-term_type1_ck(t1,T1,c0); T1)
+term_type1_ck(t1,T1,c0, "Error checking type annotation. Code 626"); T1)
 //
 |
 TMlamt
@@ -632,7 +657,7 @@ in//let
   Tf where
 {
   val () =
-  term_type1_ck(tt, Ty, c2)
+  term_type1_ck(tt, Ty, c2, "Error checking TMfixt. Code 654")
 }
 end // let // end-of-[TMfixt(x0,Tx,tt)]
 //
@@ -661,12 +686,14 @@ if x0 = xt1.0 then xt1.1 else tpctx_lookup(xts, x0)
 
 implement
 term_type1_ck
-(t0, Tt, ctx) =
+(t0, Tt, ctx, msg) =
 let
 val res =
 type_unify(T0, Tt)
 in
-if res then () else $raise TypeError()
+if res then () else $raise TypeError() where {
+    val () = println!(msg)
+}
 end where
 {
 val T0 = term_type1(t0, ctx)

@@ -39,9 +39,6 @@ fprint!(out, "TPxyz(", !r0, ")")
 |
 TPref(T1) =>
 fprint!(out, "TPref(", T1, ")")
-|
-TPlazy(T1) =>
-fprint!(out, "TPlazy(", T1, ")")
 //
 |
 TPlist(T1) =>
@@ -382,5 +379,100 @@ val () =
 println!("isprime(727) = ", term_eval0(TMapp(TMisprime, TMint(727))))
 
 (* ****** ****** *)
+
+val () = println!("Type of llist_nilq(llist_nil) is ", term_type0(TMllist_nilq(TMllist_nil())))
+
+
+val
+TMstream_map =
+let
+val input_stream = TMvar"input_stream"
+val input_stream_evaluated = TMvar"input_stream_evaluated"
+val aux = TMvar"aux"
+val transformer = TMvar"transformer" in
+TMfix(
+    "aux", (* function name *)
+    "input_stream", (* argument name *)
+    TMlam("transformer",
+        TMlazy(
+            TMlet("input_stream_evaluated", TMeval(input_stream),      (*  let input_stream_evaluated = TMeval(input_stream) in     *)
+                TMif0(TMllist_empty(input_stream_evaluated),           (*  if input_stream_evaluated is an empty lazy list          *)
+                    TMllist_nil(),                                     (*  then return an empty lazy list                           *)
+                    (* else, *)
+                    TMllist_cons(                                       (*  return a cons of `transformer(head(input_stream_evaluated))`
+                                                                            and the recursive application of aux to tail(input_stream_evaluated)
+                                                                                                                                    *)
+                            TMapp(transformer, TMllist_head(input_stream_evaluated)),
+                            TMapp(TMapp(aux, TMllist_tail(input_stream_evaluated)), transformer)  (*  recursive application of aux  *)
+                    )
+                )
+            )
+        )
+    )
+)
+end//let//end-of-[TMstream_map]
+
+
+
+val error_section_stream_map =
+let
+val input_stream = TMvar"input_stream"
+val input_stream_evaluated = TMvar"input_stream_evaluated"
+val aux = TMvar"aux"
+val transformer = TMvar"transformer" in
+TMfix(
+    "aux", (* function name *)
+    "input_stream", (* argument name *)
+    TMlam("transformer",
+        TMlazy(
+            TMlet("input_stream_evaluated", TMeval(input_stream),      (*  let input_stream_evaluated = TMeval(input_stream) in     *)
+                                TMapp(aux, TMllist_tail(input_stream_evaluated))
+            )
+        )
+    )
+)
+end
+
+
+val () = println!("Type checking TMstream_map")
+val stream_map_type = term_type0(TMstream_map)
+
+val () = println!("Type of TMstream_map is ", stream_map_type)
+
+(*
+val () = println!("type checking on error section stream map")
+val error_section_stream_map_type: type = term_type0(error_section_stream_map)
+
+val () = println!(type_norm(error_section_stream_map_type))
+*)
+val () = println!("should be 5?: ", term_eval0(
+                    TMapp(
+                        TMlam("x", TMref_get(TMvar("x"))),
+                        TMref_new(TMint(5))
+                        )
+            ))
+
+val should_be_int1 = term_type0(
+        TMapp(
+                TMlam("x", TMref_get(TMvar("x"))),
+                TMref_new(TMint(5))
+            )
+)
+
+val () = println!("should be int pt. 1 ", type_norm(should_be_int1))
+
+val should_be_int = term_type0(
+    TMapp(
+            TMlam("x",
+                  TMlet("_",
+                        TMopr("ref_set", mylist_pair(TMvar("x"), TMint(3))),
+                        TMopr("ref_get", mylist_sing(TMvar("x")))
+                  )
+            ),
+            TMopr("ref_new", mylist_sing(TMint(5)))
+    )
+)
+
+val () = println!("Should be int... ", type_norm(should_be_int))
 
 (* end of [CS525-2022-Fall/projects/midterm/Solution/midterm_main.dats] *)
