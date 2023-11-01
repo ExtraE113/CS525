@@ -86,6 +86,7 @@ datatype term =
 | TMvar of tvar
 | TMlam of (tvar, term)
 | TMapp of (term, term)
+| TMtypecheckprint of (term, string)
 //
 | TMopr of (topr, termlst)
 //
@@ -179,7 +180,7 @@ fun
 term_type1(term, tpctx): type
 fun
 term_type1_ck
-(t0:term, T0:type, c0:tpctx): void
+(t0:term, T0:type, c0:tpctx, message:string): void
 fun
 termlst_type1(termlst, tpctx): typelst
 //

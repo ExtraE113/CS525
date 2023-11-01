@@ -10,8 +10,34 @@ CS525-2023-Fall: midterm
 //
 (* ****** ****** *)
 #staload "./../../../mylib/mylib.dats"
+
+#include "./../Examples/mylib.dats"
+
+(* ****** ****** *)
+//
+fun
+str_tabulate
+( n0: int
+, fopr: int -<cloref1> char): string =
+string_make_mylist
+(foreach_to_map_list(int_foreach)(n0, fopr))
+//
+(* ****** ****** *)
+//
+fun
+str_fset_at
+(cs: string, i0: int, c0: char) =
+str_tabulate
+(
+str_length(cs),
+lam i1 =>
+if i1 != i0 then str_get_at(cs, i1) else c0)
+//
+(* ****** ****** *)
+
 (* ****** ****** *)
 exception EXNstr_get_at
+exception EXNstr_set_at
 (* ****** ****** *)
 exception EXNoptn_uncons1
 (* ****** ****** *)
@@ -46,6 +72,7 @@ envir_lookup(e0, x0)
 |TMstr(s0) => VALstr(s0)
 //
 |TMlam _ => VALlam(t0, e0)
+|TMtypecheckprint(t, _) => term_eval1(t, e0)
 |TMfix _ => VALfix(t0, e0)
 //
 |TMapp(t1, t2) =>
@@ -156,6 +183,15 @@ val-VALint(i1) = v1 and VALint(i2) = v2
 in
   VALint(i1 % i2)
 end
+
+| "=" =>
+let
+    val-mylist_cons(v1, vs) = vs
+    val-mylist_cons(v2, vs) = vs
+    val-VALint(i1) = v1 and VALint(i2) = v2
+in
+    VALbtf(i1 = i2)
+end
 //
 (* ****** ****** *)
 //
@@ -217,8 +253,45 @@ then $raise EXNstr_get_at
 else VALchr(string_get_at(cs, i0)) ) end
 end // end of [str_get_at]
 //
+| "str_set_at" =>
+let
+val-mylist_cons(v1, vs) = vs
+val-mylist_cons(v2, vs) = vs
+val-mylist_cons(v3, vs) = vs
+val-VALstr(cs) = v1 and VALint(i0) = v2 and VALchr(cr) = v3
+in//let
+let
+val i0 = g1ofg0_int(i0)
+val cs = g1ofg0_string(cs)
+val n0 = g1u2i(string1_length(cs))
+in//let
+if
+i0 < 0
+then $raise EXNstr_set_at else
+(
+if
+i0 >= n0
+then $raise EXNstr_set_at
+else VALstr(str_fset_at(cs, i0, cr))) end
+end // end of [str_set_at]
+//
 (* ****** ****** *)
 //
+| "str_eq" =>
+let
+        val-mylist_cons(v1, vs) = vs
+        val-mylist_cons(v2, vs) = vs
+        val-VALstr(s1) = v1 and VALstr(s2) = v2
+in//let
+VALbtf(s1 = s2)
+end
+| "not" =>
+let
+val-mylist_cons(v1, vs) = vs
+val-VALbtf(b1) = v1
+in
+VALbtf(~b1)
+end
 | "ref_get" =>
 let
 val-
@@ -318,13 +391,13 @@ val-VALtup(a, b) = v1
 in
 b
 end
-(*| "llist_cons" =>
+| "llist_cons" =>
 let
 val-mylist_cons(v1, vs) = vs
 val-mylist_cons(v2, vs) = vs
 in
-        (* something here todo *)
-end *)
+VALtup(v1, v2)
+end
 
 //
 (* ****** ****** *)

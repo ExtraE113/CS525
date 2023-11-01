@@ -71,7 +71,7 @@ fprint_term
 (
 case+ t0 of
 //
-| TMtypecheckprint(t, s) => fprint!(out, "TMtypecheckprint(", t, ";", s, ")" )
+| TMtypecheckprint(t, s) => fprint!(out, "TMtypecheckprint(", t, ";", s, ")")
 |
 TMnil() =>
 fprint!(out, "TMnil(", ")")

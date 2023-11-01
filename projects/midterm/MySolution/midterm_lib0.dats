@@ -101,8 +101,22 @@ TMllist_empty(t1: term): term =
 TMllist_nilq(t1)
 
 fun
+TMlist_nilq(t1: term): term =
+TMopr("list_nilq", mylist_sing(t1))
+
+fun
+TMlist_empty(t1: term): term =
+TMllist_nilq(t1)
+
+
+fun
 TMllist_nil(): term =
 TMopr("llist_new", mylist_nil())
+
+fun
+TMlist_nil(): term =
+TMopr("list_new", mylist_nil())
+
 
 fun
 TMllist_uncons1(t1: term): term =
@@ -113,6 +127,15 @@ TMllist_head(t1: term): term =
 TMllist_uncons1(t1)
 
 fun
+TMlist_uncons1(t1: term): term =
+TMopr("list_uncons1", mylist_sing(t1))
+
+fun
+TMlist_head(t1: term): term =
+TMlist_uncons1(t1)
+
+
+fun
 TMllist_uncons2(t1: term): term =
 TMopr("llist_uncons2", mylist_sing(t1))
 
@@ -121,8 +144,22 @@ TMllist_tail(t1: term): term =
 TMllist_uncons2(t1)
 
 fun
+TMlist_uncons2(t1: term): term =
+TMopr("list_uncons2", mylist_sing(t1))
+
+fun
+TMlist_tail(t1: term): term =
+TMlist_uncons2(t1)
+
+
+fun
 TMllist_cons(t1: term, t2: term): term =
 TMopr("llist_cons", mylist_pair(t1, t2))
+
+
+fun
+TMlist_cons(t1: term, t2: term): term =
+TMopr("list_cons", mylist_pair(t1, t2))
 
 
 (* ****** ****** *)
