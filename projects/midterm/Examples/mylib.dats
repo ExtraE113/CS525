@@ -1,3 +1,4 @@
+
 (* ****** ****** *)
 #staload
 "./../../../mylib/mylib.dats"
@@ -41,11 +42,11 @@ val n0 = g1u2i(string1_length(cs)) }
 extern
 fun
 int_forall
-(n0: int, test: int -> bool): bool
+(n0: int, test: int -<cloref1> bool): bool
 extern
 fun
 str_forall
-(cs: string, test: char -> bool): bool
+(cs: string, test: char -<cloref1> bool): bool
 //
 (* ****** ****** *)
 //
@@ -53,7 +54,7 @@ extern
 fun
 {a:t@ype}
 mylist_forall
-(xs: mylist(a), test: a -> bool): bool
+(xs: mylist(a), test: a -<cloref1> bool): bool
 //
 (* ****** ****** *)
 //
@@ -61,7 +62,7 @@ extern
 fun
 {a:t@ype}
 mystream_forall
-(xs: mystream(a), test: a -> bool): bool
+(xs: mystream(a), test: a -<cloref1> bool): bool
 //
 (* ****** ****** *)
 //
@@ -126,16 +127,18 @@ fun
 {x0:t@ype}
 forall_to_foreach
 ( forall
-: (xs, x0 -> bool) -> bool
+: (xs, x0 -<cloref1> bool) -> bool
 )
-: (xs, x0 -> void) -> void
+: (xs, x0 -<cloref1> void) -<cloref1> void
 
 implement
 {xs}
 {x0}
 forall_to_foreach
 (forall) =
-lam(xs: xs, work: x0 -> void) =>
+lam
+( xs: xs
+, work: x0 -<cloref1> void) =>
 let
 val _ =
 forall
@@ -149,12 +152,12 @@ end (* end of [forall_to_foreach]: let *)
 fun
 int_foreach
 ( n0: int
-, work: int -> void): void =
+, work: int -<cloref1> void): void =
 forall_to_foreach(int_forall)(n0, work)
 fun
 str_foreach
 ( cs: string
-, work: char -> void): void =
+, work: char -<cloref1> void): void =
 forall_to_foreach(str_forall)(cs, work)
 //
 (* ****** ****** *)
@@ -163,7 +166,7 @@ fun
 {x0:t@ype}
 mylist_foreach
 ( xs: mylist(x0)
-, work: (x0) -> void): void =
+, work: (x0) -<cloref1> void): void =
 forall_to_foreach(mylist_forall)(xs, work)
 //
 (* ****** ****** *)
@@ -175,8 +178,8 @@ fun
 forall_to_get_at
 (
 forall:
-(xs,
- x0 -> bool) -> bool): (xs, int) -> x0
+( xs
+, x0 -<cloref1> bool) -> bool): (xs, int) -<cloref1> x0
 //
 implement
 {xs}
@@ -219,9 +222,9 @@ fun
 {r0:t@ype}
 foreach_to_foldleft
 ( foreach
-: (xs, x0 -> void) -> void
+: (xs, x0 -<cloref1> void) -> void
 )
-: (xs, r0, (r0, x0) -> r0) -> r0
+: (xs, r0, (r0, x0) -<cloref1> r0) -<cloref1> r0
 //
 implement
 {xs}
@@ -260,7 +263,8 @@ fun
 foreach_to_listize
 (
 foreach:
-(xs, x0->void)->void): xs -> mylist(x0)
+( xs
+, x0-<cloref1>void)->void): xs -<cloref1> mylist(x0)
 implement
 {xs}
 {x0}
@@ -282,7 +286,7 @@ fun
 foreach_to_rlistize
 (
 foreach:
-(xs, x0->void)->void): xs -> mylist(x0)
+(xs, x0-<cloref1>void)->void): xs -<cloref1> mylist(x0)
 implement
 {xs}
 {x0}
@@ -301,8 +305,9 @@ fun
 {x0:t@ype}
 {r0:t@ype}
 mylist_foldleft
-( xs: mylist(x0)
-, r0: r0, fopr: (r0, x0) -> r0): r0
+( xs
+: mylist(x0)
+, r0: r0, fopr: (r0, x0) -<cloref1> r0): r0
 //
 implement
 {x0}
@@ -325,6 +330,12 @@ mylist_cons
 }
 //
 (* ****** ****** *)
+fun
+{x0:t@ype}
+mylist_length
+(xs: mylist(x0)): int =
+mylist_foldleft<x0><int>(xs,0,lam(r, x) => r+1)
+(* ****** ****** *)
 //
 extern
 fun
@@ -333,9 +344,9 @@ fun
 {r0:t@ype}
 foreach_to_foldright
 ( foreach
-: (xs, x0 -> void) -> void
+: (xs, x0 -<cloref1> void) -> void
 )
-: (xs, r0, (x0, r0) -> r0) -> r0
+: (xs, r0, (x0, r0) -<cloref1> r0) -<cloref1> r0
 //
 implement
 {xs}
@@ -359,13 +370,13 @@ fun
 {(*tmp*)}
 str_make_fwork
 ( fwork
-: (char -> void) -> void): string
+: (char -<cloref1> void) -<cloref1> void): string
 extern
 fun
 {x0:t@ype}
 mylist_make_fwork
 ( fwork
-: ((x0) -> void) -> void): mylist(x0)
+: ((x0) -<cloref1> void) -<cloref1> void): mylist(x0)
 
 (* ****** ****** *)
 
@@ -400,7 +411,8 @@ fun
 foreach_to_map_list
 (
 foreach:
-(xs, x0->void)->void): (xs, x0 -> y0) -> mylist(y0)
+(xs, x0-<cloref1>void)->void):
+(xs, x0 -<cloref1> y0) -<cloref1> mylist(y0)
 //
 implement
 {xs}
@@ -424,7 +436,7 @@ fun
 mylist_map
 ( xs
 : mylist(x0)
-, fopr: (x0) -> y0): mylist(y0) =
+, fopr: (x0) -<cloref1> y0): mylist(y0) =
 foreach_to_map_list(mylist_foreach)(xs, fopr)
 //
 (* ****** ****** *)
@@ -459,13 +471,13 @@ fun
 mystream_map
 ( fxs
 : mystream(x0)
-, fopr: (x0) -> y0): mystream(y0) =
+, fopr: (x0) -<cloref1> y0): mystream(y0) =
 (
   auxmain(fxs) ) where
 {
 fun
 auxmain
-(fxs
+( fxs
 : mystream(x0)
 )
 : mystream(y0) = lam() =>
@@ -475,7 +487,7 @@ case+ fxs() of
 myllist_nil() =>
 myllist_nil()
 |
-myllist_cons(x1, xs) =>
+myllist_cons(x1, fxs) =>
 myllist_cons(fopr(x1), auxmain(fxs))) }
 //
 (* ****** ****** *)
