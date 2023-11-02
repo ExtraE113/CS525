@@ -130,7 +130,7 @@ fprint!(out, "TMfix(", f, ";", x, ";", tt, ")")
 |
 TManno(t1, T1) =>
 (
-  fprint!(out, "TManno(", t1, ";", T1, ")"))
+  fprint!(out, "TManno(", t1, ";", type_norm(T1), ")"))
 //
 |
 TMlamt(x, Tx, tt) =>
