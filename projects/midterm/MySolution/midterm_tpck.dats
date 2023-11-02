@@ -39,6 +39,12 @@ myoptn_cons
 type_norm(T1) // chasing
 |
 _(*unsolved*) => (  T0  ))
+| TPllist(a) => TPllist(type_norm(a))
+| TPlist(a) => TPlist(type_norm(a))
+| TPfun(a, b) => TPfun(type_norm(a), type_norm(b))
+| TPtup(a, b) => TPtup(type_norm(a), type_norm(b))
+
+
 |
 _(* non-TPxyz *) => ( T0 ))
 //
@@ -222,7 +228,7 @@ end
 //
 | TPfun _ => ()
 | _(*else*) =>
-  $raise TypeError()
+  $raise TypeError() where {val () = println!("type error 225")}
 ) where
 {
   val T0 = type_norm(T0) }
@@ -247,7 +253,7 @@ end
 //
 | TPtup _ => ()
 | _(*else*) =>
-  $raise TypeError()
+  $raise TypeError() where {val () = println!("type error 250")}
 ) where
 {
   val T0 = type_norm(T0) }
@@ -312,8 +318,8 @@ TPfun(T11, T12) = T1
 //val () = println!("begin app type check")
 //val () = println!("T11 is     ", type_norm(T11))
 //val () = println!("T12 is     ", type_norm(T12))
-//val () = println!("Type t2 is ", type_norm(term_type1(t2, c0)))
 //val () = println!("t2 is      ", t2)
+//val () = println!("Type t2 is ", type_norm(term_type1(t2, c0)))
 val () =
 term_type1_ck(t2, T11, c0, "Error while typechecking TMapp, t2 not of type T11. Code 308")
 //val () = println!("type check 308 passed")
@@ -549,8 +555,17 @@ val t = term_type1(t1, c0)
 val-mylist_cons(element, ts) = ts
 val-mylist_cons(rest_of_list, ts) = ts
 val element_type = term_type1(element, c0)
+val rest_of_list_type = term_type1(rest_of_list, c0)
+
+val res = type_unify(rest_of_list_type, TPfun(TPnil, TPllist(element_type)))
+val () = if res then () else () where {
+val () = println!("element type      ", type_norm(element_type))
+val () = println!("rest of list type ", type_norm(rest_of_list_type))
+}
+
+
 val () = term_type1_ck(rest_of_list, TPfun(TPnil, TPllist(element_type)), c0,
-                       "Error while typechecking llist_cons, t2 is not of type TPllist(T1). Code 504")
+                       "Error while typechecking llist_cons, rest_of_list is not of type TPfun(TPnil, TPllist(T1)). Code 504")
 }
 | "llist_nilq" => TPbtf where {
 val-mylist_cons(t1, ts) = ts
@@ -663,12 +678,18 @@ mylist_cons((f0, Tf), c1)
 in//let
   Tf where
 {
-//  val () = println!("tt is ", term_type1(tt, c2))
-//  val () = println!("Ty is ", Ty)
-//  val () = println!("c2 is ", c2)
+val Ttt = term_type1(tt, c2)
+val res = type_unify(Ttt, Ty)
+val () = if res then () else () where {
+val () = println!("end type check 619")
+val () = println!("tt is      ", tt)
+val () = println!("tt is type ", type_norm(term_type1(tt, c2)))
+val () = println!("Ty is      ", type_norm(Ty))
+//val () = println!("c2 is ", c2)
+}
+
 val () =
   term_type1_ck(tt, Ty, c2, "Error while typechecking TMfix, tt not of type Ty in c2. Code 619")
-//  val () = println!("end type check 619")
 }
 end//end-of-[TMfix(f0,x0,tt)]
 //
@@ -677,11 +698,11 @@ TManno(t1, T1) => (T1) where {
 val t1_type_actual = term_type1(t1, c0)
 val res = type_unify(T1, t1_type_actual)
 val () = if res then () else () where {
-//val () = println!("#Checking annotation")
-//val () = println!("#t1 is ", type_norm(t1_type_actual))
-//val () = println!("#T1 is ", T1)
+val () = println!("#Checking annotation")
+val () = println!("#t1 is ", type_norm(t1_type_actual))
+val () = println!("#T1 is ", T1)
 val () = term_type1_ck(t1,T1,c0, "Error checking type annotation. Code 626")
-//val () = println!("#passed check 626")
+val () = println!("#passed check 626")
 }
 }
 

@@ -244,7 +244,7 @@ end
 //)
 //
 //var one_to_six = TMlazy_map(zero_to_five, TMincrement)
-//
+
 //val () = println!(term_type0(one_to_six))
 //val () = println!(term_eval0(
 //        one_to_six
@@ -270,36 +270,252 @@ end
 // first real quick let's write a function to go from our 2-tuple
 // to a call to takeout
 
-var TMtakeout_curried =
+fun
+TMtakeout_curried() =
+TMtakeout_curried_raw where {
+    var TMtakeout_curried_raw =
+        TMlam(
+                "inp",
+                TMlam(
+                        "index",
+                        TMtakeout(TMvar
+"inp", TMvar"index")
+)
+)
+}
+
+val enumerate_tuple_to_index =
 TMlam(
         "inp",
-        TMlam(
-                "index",
-                TMtakeout(TMvar"inp", TMvar"index")
-                )
+        TMfst(TMvar"inp")
         )
 
-val one_to_three = TMapp(TMapp(TMlazy_range, TMint(100)), TMint(104))
+val TMrange_len =
+        TMlam(
+                "inp",
+                TMlazy_map(
+                        TMllist_enumerate(TMvar"inp"),
+                        enumerate_tuple_to_index
+                        )
+                )
 
-//val takeout_two = TMtakeout(one_to_three, TMint(2))
-//val takeout_two   = TMapp(TMtakeout_from_argtuple, TMtup(TMint(2), one_to_three))
-//val () = println!(term_type0(takeout_two))
-//val () = println!(term_eval0(takeout_two))
-//val () = println!(term_eval0(
-//        TMllist_next(TMsnd(takeout_two))
-//        ))
-//val () = println!(term_eval0(
-//                TMllist_next(TMllist_next(TMsnd(takeout_two)))
-//                ))
+val ten_to_fourteen = TMapp(TMapp(TMlazy_range, TMint(10)), TMint(14))
 
 
-//val () = println!(term_type0(TMtakeout_from_argtuple))
+//val range_len_10_14 = TMapp(TMrange_len, ten_to_fourteen)
+//val () = println!(term_eval0(range_len_10_14))
+//val () = println!(term_eval0(TMllist_next(range_len_10_14)))
 
 // ok, now we're ready
 
-val takeouts =
-        TMlazy_map(
-                enumerated_lists,
-                TMtakeout_from_argtuple
+val TMtakeouts =
+        TMlam(
+            "input",
+            TMlazy_map(
+                TMapp(TMrange_len, TMvar"input"),
+                TMapp(TMtakeout_curried(), TMvar"input")
+            )
         )
-val () = println!(term_type0(takeouts))
+
+//val takeouts = TMapp(TMtakeouts, zero_to_five)
+
+//val () = println!(term_type0(takeouts))
+
+val TMllist_to_list =
+TMfix(
+        "cont",
+        "input",
+        TMif0(
+                TMllist_nilq(TMvar"input"),
+                TMlist_nil(),
+                TMlist_cons(
+                        TMllist_head(TMvar"input"),
+                        TMapp(TMvar"cont", TMllist_next(TMvar"input"))
+                        )
+                )
+        )
+
+//val TMtuple_element_llist_to_tuple_element_list =
+//TMlam(
+//        "inp",
+//        TMtup(
+//                TMfst(TMvar"inp"),
+//                TMapp(TMllist_to_list, TMsnd(TMvar"inp"))
+//                )
+//        )
+//
+//val () = println!(term_eval0(
+//        TMapp(TMllist_to_list,
+//              TMlazy_map(takeouts, TMtuple_element_llist_to_tuple_element_list)
+//              )
+//        ))
+
+//def ordered_permute(lst):
+//    if not lst:
+//        yield []
+//    else:
+//        for elem, remainder in takeouts(lst):
+//            for p in ordered_permute(remainder):
+//                yield [elem] + p
+
+//def ordered_permute(lst):
+//    if not lst:
+//        yield []
+//    else:
+//        for elem_remainder_tuple in takeouts(lst):
+//            for p in ordered_permute(elem_remainder_tuple.2):
+//                yield [elem_remainder_tuple.1] + p
+
+val TMllist_concat_raw =
+let
+val element_type = tpxyz_new()
+val input1 = TManno(TMvar"input1", TPllist(element_type))
+val input2 = TManno(TMvar"input2", TPllist(element_type))
+in
+TMfix
+(
+"cont",
+"input1",
+TMlam(
+"input2",
+      TMif0(
+          TMllist_nilq(input1),
+          input2,
+          TMllist_cons(
+                  TMllist_head(input1),
+                  TMlazy(TMapp(TMapp(TMvar"cont", TMllist_next(input1)), input2))
+
+          )
+      ))
+)
+end
+
+fun
+TMllist_concat(a: term, b: term): term =
+TMapp(TMapp(TMllist_concat_raw, a), b)
+
+
+fun TMlazy_flatten(t:term):term =
+TMapp(TMlazy_flatten_raw, t) where {
+val TMlazy_flatten_raw =
+let
+val element_type = tpxyz_new()
+val input = TManno(TMvar"input", TPllist(TPllist(element_type)))
+in
+TMfix
+(
+"cont",
+"input",
+  TMif0(
+      TMllist_nilq(input),
+      TMllist_nil(),
+      TMllist_concat(TMllist_head(input),
+                    TMapp(TMvar"cont", TMllist_next(input))
+        )
+  )
+)
+end
+}
+
+val nested_list = TMllist_cons(
+        zero_to_five,
+        TMlazy(TMllist_cons(
+                zero_to_five,
+                TMlazy(TMllist_nil())
+        ))
+)
+
+
+
+val flattened = TMlazy_flatten(
+        nested_list
+)
+//
+//val () = println!(term_eval0(
+//            flattened
+//        ))
+
+//val () = println!(term_type0(nested_list))
+//val () = println!(type_norm(term_type0(TMlazy_flatten_raw)))
+//val () = println!(term_eval0(TMapp(TMllist_to_list, flattened)))
+
+
+
+
+val TMordered_permute =
+let
+val element_type = TPint
+val input_type = TPllist(element_type)
+val lst = TManno(TMvar"lst", input_type)
+in
+TMfix(
+        "cont",
+        "lst",
+        TMif0(
+                TMllist_nilq(lst),
+                TMllist_nil(),
+                TMif0(
+                        TMllist_nilq(TMllist_next(lst)),
+                        TMllist_cons(lst, TMlazy(TMllist_nil())),
+                        TMlet(
+                        "elem_remainder_tuples_list",
+                        TManno(TMapp(TMtakeouts, lst), TPllist(TPtup(element_type, input_type))),
+                        TManno(
+                                TMlazy_flatten(TMlazy_map(
+                                    TManno(TMvar"elem_remainder_tuples_list", TPllist(TPtup(element_type, input_type))),
+                                    TManno(
+                                            TMlam(
+                                                "elem_remainder_tuple",
+                                                        TMlet("recursive_result", TManno(TMapp(TMvar"cont", TManno(TMsnd(TMvar"elem_remainder_tuple"), input_type)), TPllist(input_type)),
+                                                            TMlazy_map(
+                                                                TMvar"recursive_result",
+                                                                TMlam(
+                                                                        "x",
+                                                                        TManno(TMllist_cons(TMfst(TMvar"elem_remainder_tuple"), TMlazy(TManno(TMvar"x", input_type))), input_type)
+                                                                      )
+                                                            )
+                                                        )
+                                            ),
+                                         TPfun(TPtup(element_type, input_type), TPllist(input_type)))
+                                    )),
+                                    TPllist(input_type)
+                                )
+                        ))
+                )
+        )
+end
+//
+val () = println!(term_type0(TMordered_permute))
+
+val one_to_three_inclusive = TMapp(TMapp(TMlazy_range, TMint(1)), TMint(4))
+
+val () = println!(term_eval0(
+        TMapp(TMllist_to_list, TMlazy_map(TMapp(TMordered_permute, one_to_three_inclusive), TMllist_to_list))
+        ))
+val () = println!("")
+val () = println!("*************")
+val () = println!("")
+
+val () = println!(term_eval0(TMfst(
+        TMlazy_map(TMapp(TMordered_permute, zero_to_five), TMllist_to_list)
+)))
+
+val () = println!(term_eval0(TMfst(
+        TMllist_next(TMlazy_map(TMapp(TMordered_permute, zero_to_five), TMllist_to_list))
+)))
+
+val () = println!(term_eval0(TMfst(
+        TMllist_next(TMllist_next(TMlazy_map(TMapp(TMordered_permute, zero_to_five), TMllist_to_list)))
+)))
+
+val () = println!(term_eval0(TMfst(
+        TMllist_next(TMllist_next(TMllist_next(TMlazy_map(TMapp(TMordered_permute, zero_to_five), TMllist_to_list))))
+)))
+
+val () = println!(term_eval0(TMfst(
+        TMllist_next(TMllist_next(TMllist_next(TMllist_next(TMlazy_map(TMapp(TMordered_permute, zero_to_five), TMllist_to_list)))))
+)))
+
+val () = println!(term_eval0(TMfst(
+        TMllist_next(TMllist_next(TMllist_next(TMllist_next(TMllist_next(TMlazy_map(TMapp(TMordered_permute, zero_to_five), TMllist_to_list))))))
+)))
