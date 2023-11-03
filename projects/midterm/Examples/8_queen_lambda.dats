@@ -1,4 +1,21 @@
-#include "list_permute_stream_lambda.dats"
+(* ****** ****** *)
+(*
+CS525-2023-Fall: midterm
+*)
+(* ****** ****** *)
+#include "share/atspre_staload.hats"
+
+(* ****** ****** *)
+//
+#staload "./../midterm.sats" //opened
+//
+(* ****** ****** *)
+#staload "./../../../mylib/mylib.dats"
+//
+(* ****** ****** *)
+#include "../MySolution/header.dats"
+
+
 // first things first, a get_at function for lists.
 fun
 TMget_at(t: term, i: term) : term =
@@ -310,49 +327,7 @@ TMfix(
 //        TMlist_len
 //        )))
 
-// now we need to write a lazy filter
 
-val TMlazy_filter =
-let
-val element_type = tpxyz_new()
-val input = TManno(TMvar"input", TPllist(element_type))
-val test = TManno(TMvar"test", TPfun(element_type, TPbtf))
-in
-TMfix(
-        "cont",
-        "input",
-        TMlam("test",
-              TMif0(
-                      TMapp(test, TMllist_head(input)),
-                      TMllist_cons(
-                              TMllist_head(input),
-                              TMlazy(TMapp(TMapp(TMvar"cont", TMllist_next(input)), test))
-                              ),
-                      TMapp(TMapp(TMvar"cont", TMllist_next(input)), test)
-                      )
-              )
-        )
-end
-
-//val () = println!(type_norm(term_type0(TMlazy_filter)))
-
-
-//val TMis_pow_ten =
-//TMlam(
-//        "x",
-//        TMeq(TMmod(TMvar"x", TMint(10)), TMint(0))
-//        )
-//
-//val lazy_big_list = TMapp(TMapp(TMlazy_range, TMint(0)), TMint(800000000))
-//
-//val filter_test = TMapp(TMapp(
-//        TMlazy_filter,
-//        lazy_big_list
-//), TMis_pow_ten)
-//
-//val () = println!(term_eval0(
-//        TMllist_next(filter_test)
-//        ))
 
 
 // ok, time to actually get started
@@ -509,3 +484,4 @@ val all_boards = TMapp(TMapp(TMapp(
 val () = println!(type_norm(term_type0(all_boards)))
 
 val () = println!(term_eval0(TMlist_head(all_boards)))
+val () = println!(term_eval0(TMlist_head(TMlist_tail(all_boards))))

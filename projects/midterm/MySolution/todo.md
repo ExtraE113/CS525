@@ -11,12 +11,12 @@ We need to:
     -[x] list_consq 
     -[x] list_uncons1
     -[x] list_uncons2 
-    -[ ] llist_nilq
-    -[ ] llist_consq 
-    -[ ] llist_uncons1 
-    -[ ] llist_uncons2
+    -[x] llist_nilq
+    -[x] llist_consq 
+    -[x] llist_uncons1 
+    -[x] llist_uncons2
 -[x] implement lists 
--[ ] and lazy lists by adding some code to midterm_eval.dats.
--[ ] implement list_permute_string, 
--[ ] nqueen_puzzle_solve, 
--[ ] and word_buddy_stream in lambda calculus (translated from the sml and python example code).
+-[x] and lazy lists by adding some code to midterm_eval.dats.
+-[x] implement list_permute_string, 
+-[x] nqueen_puzzle_solve, 
+-[x] and word_buddy_stream in lambda calculus (translated from the sml and python example code).

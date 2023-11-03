@@ -34,3 +34,4 @@ current_boards = reduce(board_extend, range(N), current_boards)
 # Now, current_boards should have all solutions for the 8 queens problem
 print(f"Number of solutions: {len(current_boards)}")
 print(current_boards[0])
+print(current_boards[1])

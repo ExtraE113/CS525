@@ -17,6 +17,47 @@ CS525-2023-Fall: midterm
 
 (* ****** ****** *)
 
+//val TMlazy_filter =
+//let
+//val element_type = tpxyz_new()
+//val input = TManno(TMvar"input", TPllist(element_type))
+//val test = TManno(TMvar"test", TPfun(element_type, TPbtf))
+//in
+//TMfix(
+//        "cont",
+//        "input",
+//        TMlam("test",
+//              TMif0(
+//                      TMapp(test, TMllist_head(input)),
+//                      TMllist_cons(
+//                              TMllist_head(input),
+//                              TMlazy(TMapp(TMapp(TMvar"cont", TMllist_next(input)), test))
+//                              ),
+//                      TMapp(TMapp(TMvar"cont", TMllist_next(input)), test)
+//                      )
+//              )
+//        )
+//end
+//
+//val () = println!(type_norm(term_type0(TMlazy_filter)))
+
+
+//val TMis_pow_ten =
+//TMlam(
+//        "x",
+//        TMeq(TMmod(TMvar"x", TMint(10)), TMint(0))
+//        )
+//
+//val lazy_big_list = TMapp(TMapp(TMlazy_range, TMint(0)), TMint(800000000))
+//
+//val filter_test = TMapp(TMapp(
+//        TMlazy_filter,
+//        lazy_big_list
+//), TMis_pow_ten)
+//
+//val () = println!(term_eval0(
+//        TMllist_next(filter_test)
+//        ))
 
 fun TMllist_next(t: term): term =
 TMapp(TMllist_next_raw, t) where {
@@ -485,7 +526,7 @@ TMfix(
         )
 end
 //
-(*
+
 val () = println!(term_type0(TMordered_permute))
 
 val one_to_three_inclusive = TMapp(TMapp(TMlazy_range, TMint(1)), TMint(4))
@@ -520,4 +561,3 @@ val () = println!(term_eval0(TMfst(
 val () = println!(term_eval0(TMfst(
         TMllist_next(TMllist_next(TMllist_next(TMllist_next(TMllist_next(TMlazy_map(TMapp(TMordered_permute, zero_to_five), TMllist_to_list))))))
 )))
-*)
