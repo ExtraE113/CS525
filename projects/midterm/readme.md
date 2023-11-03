@@ -8,6 +8,16 @@ but feel free to uncomment it.
 
 To run the code, just compile and run the appropriate file.
 
+I make extensive use of list-transformation functions, specifically:
+- map
+- filter
+- forall
+- fold_left (reduce)
+- range
+
+Those are all implemented in pure lambda calculus, and for the most part have (commented out)
+tests.
+
 I've also made some minor changes to midterm.sats.
 
 term_type1_ck now takes another argument `msg`; if the typecheck fails it prints msg.
