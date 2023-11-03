@@ -1,8 +1,4 @@
 #include "list_permute_stream_lambda.dats"
-// lets start by implementing this function
-// def conflict(board, i, j):
-//    return board[i] == board[j] or abs(i-j) == abs(board[i]-board[j])
-
 // first things first, a get_at function for lists.
 fun
 TMget_at(t: term, i: term) : term =
@@ -35,6 +31,41 @@ val board = TMlist_cons(TMint(0), TMlist_cons(TMint(2), TMlist_cons(TMint(4), TM
 //
 //val () = println!("get at 3 ", term_eval0(TMget_at(board, TMint(3))))
 
+// set at
+fun
+TMset_at(t: term, i: term, v: term) : term =
+TMapp(TMapp(TMapp(TMget_at_raw, t), i), v) where {
+val TMget_at_raw =
+let
+val element_type = tpxyz_new()
+val input = TManno(TMvar"input", TPlist(element_type))
+val index = TManno(TMvar"index", TPint)
+val new_v = TManno(TMvar"new_v", TPint)
+in
+TMfix(
+        "cont",
+        "input",
+        TMlam(
+                "index",
+                TMlam(
+                        "new_v",
+                        TMif0(
+                                TMeq(index, TMint(0)),
+                                TMlist_cons(new_v, TMlist_tail(input)),
+                                TMlist_cons(TMlist_head(input), TMapp(TMapp(TMapp(TMvar"cont", TMlist_tail(input)), TMsub(index, TMint(1))), new_v))
+                            )
+                        )
+                )
+        )
+end
+}
+
+//val () = println!("set at 0 ", term_eval0(TMset_at(board, TMint(0), TMint(1000))))
+//
+//val () = println!("set at 1 ", term_eval0(TMset_at(board, TMint(1), TMint(1000))))
+//
+//val () = println!("set at 3 ", term_eval0(TMset_at(board, TMint(3), TMint(1000))))
+
 
 // now an abs function, I guess
 val TMabs =
@@ -58,88 +89,8 @@ val () = println!(term_eval0(
         TMapp(TMabs, TMint(25))
 ))
 *)
-// ok, back to this
-// def conflict(board, i, j):
-//    return board[i] == board[j] or abs(i-j) == abs(board[i]-board[j])
-//
-// we don't have the primitive logic operators "and" and "or", so we have to use nested ifs
-// def conflict(board, i, j):
-//    if board[i] == board[j]:
-//          return true
-//    else:
-//          if abs(i-j) == abs(board[i]-board[j]):
-//              return true
-//          else:
-//              return false
-
-val TMconflict = 
-let
-val board = TManno(TMvar"board", TPlist(TPint))
-val i = TManno(TMvar"i", TPint)
-val j = TManno(TMvar"j", TPint)
-in
-TMlam(
-    "board",
-    TMlam(
-        "i",
-        TMlam(
-            "j",
-            TMlet(
-                "board[i]",
-                TMget_at(board, i),
-                TMlet(
-                    "board[j]",
-                    TMget_at(board, j),
-                    TMif0(
-                        TMeq(TMvar"board[i]", TMvar"board[j]"),
-                        TMbtf(true),
-                        TMif0(
-                            //if abs(i-j) == abs(board[i]-board[j]):
-                            TMeq(TMapp(TMabs, TMsub(i, j)), TMapp(TMabs, TMsub(TMvar"board[i]", TMvar"board[j]"))),
-                            TMbtf(true),
-                            TMbtf(false)
-                            )
-                        )
-                    )
-                )
-            )
-        )
-    )
-end
-
-(*
-val () = println!(type_norm(term_type0(
-        TMconflict
-        )))
 
 
-
-val board = TMlist_cons(TMint(0), TMlist_cons(TMint(2), TMlist_cons(TMint(4), TMlist_cons(TMint(6), TMlist_cons(TMint(1), TMlist_cons(TMint(3), TMlist_cons(TMint(5), TMlist_cons(TMint(7), TMlist_nil()))))))))
-val () = println!("should be false", term_eval0(
-        TMapp(TMapp(TMapp(TMconflict, board), TMint(1)), TMint(2))
-))
-
-
-val board = TMlist_cons(TMint(1), TMlist_cons(TMint(1), TMlist_cons(TMint(2), TMlist_cons(TMint(3), TMlist_cons(TMint(4), TMlist_cons(TMint(5), TMlist_cons(TMint(6), TMlist_cons(TMint(7), TMlist_nil()))))))))
-val () = println!("should be true", term_eval0(
-        TMapp(TMapp(TMapp(TMconflict, board), TMint(0)), TMint(1))
-))
-
-val board = TMlist_cons(TMint(0), TMlist_cons(TMint(2), TMlist_cons(TMint(3), TMlist_cons(TMint(5), TMlist_cons(TMint(1), TMlist_cons(TMint(4), TMlist_cons(TMint(6), TMlist_cons(TMint(7), TMlist_nil()))))))))
-val () = println!("should be true", term_eval0(
-        TMapp(TMapp(TMapp(TMconflict, board), TMint(1)), TMint(2))
-))
-val () = println!("should be true", term_eval0(
-        TMapp(TMapp(TMapp(TMconflict, board), TMint(6)), TMint(7))
-))
-
-*)
-
-// Now we need to do this:
-// pairs = [(i, j) for i in range(len(board)) for j in range(i+1, len(board))]
-// we can do this with a map and a range.
-// we map over the range, and at each do a range from that element up to 8. Inside that map call,
-// do another map call to return the tuple.
 
 fun
 TMmap(input: term, func: term): term =
@@ -189,6 +140,9 @@ TMif0(
     )
 )
 
+fun
+TMrange_fn(b: int, e: int) =
+TMapp(TMapp(TMrange, TMint(b)), TMint(e))
 
 val TMlist_concat_raw =
 let
@@ -241,6 +195,24 @@ TMfix
 end
 }
 
+//let rec fold_left op acc = function
+//  | []   -> acc
+//  | h :: t -> fold_left op (op acc h) t
+
+val TMfold_left =
+TMfix(
+  "cont",
+  "fn",
+  TMlam("accumulator", TMlam("list",
+     TMif0(
+       TMlist_nilq(TMvar"list"),
+       TMvar"accumulator",
+       TMapp(TMapp(TMapp(TMvar"cont", TMvar"fn"), TMapp(TMapp(TMvar"fn", TMvar"accumulator"), TMlist_head(TMvar"list"))), TMlist_tail(TMvar"list"))
+       )
+     ))
+  )
+
+//val () = println!(type_norm(term_type0(TMfold_left)))
 
 val pairs = TMflatten(TMmap(
         TMapp(TMapp(TMrange, TMint(0)), TMint(8)),
@@ -255,34 +227,9 @@ val pairs = TMflatten(TMmap(
                 )
         ))
 
-val TMpairs_until_row =
-TMlam(
-        "row",
-        TMflatten(TMmap(
-        TMapp(TMapp(TMrange, TMint(0)), TMvar"row"),
-        TMlam(
-                "x",
-                TMmap(TMapp(TMapp(TMrange, TMadd(TMvar"x", TMint(1))), TMint(8)),
-                    TMlam(
-                            "y",
-                            TMtup(TMvar"x", TMvar"y")
-                          )
-                    )
-                )
-        ))
-
-        )
-val () = println!(term_eval0(TMapp(TMpairs_until_row, TMint(3))))
-
 //val () = println!(type_norm(term_type0(pairs)))
 //val () = println!(term_eval0(pairs))
 
-// great! we've got pairs.
-// now this line:
-// return all(not conflict(i, j) for i, j in pairs)
-// the for is easy, just another map. but the all is slightly harder.
-// an easy solution is filter & len = 0
-// the test is the not function, since we're checking for the existence of "false"
 
 fun TMfilter(imp_list: term, test: term): term =
 TMapp(TMapp(TMfilter_raw, imp_list), test) where {
@@ -342,119 +289,6 @@ val () = println!("Should be false ", term_eval0(TMapp(TMall, mixed_list)))
 
 *)
 
-// great, now for that last line
-// return all(not conflict(x, y) for x, y in pairs)
-
-
-val TMcheck_board_against_pair =
-TMlam(
-    "b",
-    TMlam(
-            "tuple",
-            TMlet("x", TMfst(TMvar"tuple"),
-            TMlet("y", TMsnd(TMvar"tuple"),
-                TMapp(TMapp(TMapp(TMconflict, TMvar"b"), TMvar"x"), TMvar"y")
-                ))
-            )
-    )
-
-var TMcheck_conflict =
-TMlam(
-        "b",
-        TMlam(
-                "r",
-                TMapp(TMall,
-                    TMmap(
-                        TMapp(TMpairs_until_row, TMvar"r"),
-                        TMlam(
-                                "tuple",
-                                TMif0(
-                                        TMapp(TMapp(TMcheck_board_against_pair, TMvar"b"), TMvar"tuple"),
-                                        TMbtf(false),
-                                        TMbtf(true)
-                                        )
-                                )
-                        )
-                )
-            )
-        )
-
-
-
-
-
-
-val () = println!(type_norm(term_type0(TMcheck_conflict)))
-//
-val example_legal_board = TMlist_cons(TMint(0), TMlist_cons(TMint(4), TMlist_cons(TMint(7), TMlist_cons(TMint(5), TMlist_cons(TMint(2), TMlist_cons(TMint(6), TMlist_cons(TMint(1), TMlist_cons(TMint(3), TMlist_nil()))))))))
-val example_illegal_board = TMlist_cons(TMint(0), TMlist_cons(TMint(4), TMlist_cons(TMint(7), TMlist_cons(TMint(0), TMlist_cons(TMint(2), TMlist_cons(TMint(6), TMlist_cons(TMint(1), TMlist_cons(TMint(3), TMlist_nil()))))))))
-
-val () = println!("should be true, no conflict and all good ", term_eval0(
-        TMapp(TMapp(TMcheck_conflict, example_legal_board), TMint(8))
-        ))
-
-val () = println!("should be false, there is conflict ", term_eval0(
-        TMapp(TMapp(TMcheck_conflict, example_illegal_board), TMint(8))
-))
-
-val () = println!("400", term_eval0(
-        TMapp(
-                TMapp(TMcheck_board_against_pair, example_illegal_board),
-                        TMtup(TMint(0), TMint(3)))
-        ))
-
-val () = println!("should be true, no conflict before row 4 ", term_eval0(
-        TMapp(TMapp(TMcheck_conflict, example_illegal_board), TMint(2))
-))
-val () = println!("should be false, there is conflict at row 4", term_eval0(
-        TMapp(TMapp(TMcheck_conflict, example_illegal_board), TMint(4))
-))
-
-// if the board is illegal, returns true. else false.
-//val () = println!(term_eval0(
-//        TMapp(TMapp(TMcheck_board_against_pair, example_legal_board), TMtup(TMint(0), TMint(1)))
-//        ))
-
-
-val lazy_0_8 = TMapp(TMapp(TMlazy_range, TMint(0)), TMint(8))
-
-
-val board_template = TMlist_cons(TMvar"h", TMlist_cons(TMvar"g", TMlist_cons(TMvar"f", TMlist_cons(TMvar"e", TMlist_cons(TMvar"d", TMlist_cons(TMvar"c", TMlist_cons(TMvar"b", TMlist_cons(TMvar"a", TMlist_nil()))))))))
-
-
-
-val all_posib =
-TMlazy_flatten(TMlazy_map(lazy_0_8,
-TMlam("a",
- TMlazy_flatten(TMlazy_map(lazy_0_8,
-      TMlam("b",
-            TMlazy_flatten(TMlazy_map(lazy_0_8,
-                       TMlam("c",
-                             TMlazy_flatten(TMlazy_map(lazy_0_8,
-                                            TMlam("d",
-                                                TMlazy_flatten(TMlazy_map(lazy_0_8,
-                                                                          TMlam("e",
-                                                                                TMlazy_flatten(TMlazy_map(lazy_0_8,
-                                                                                        TMlam("f",
-                                                                                              TMlazy_flatten(TMlazy_map(lazy_0_8,
-                                                                                                      TMlam("g",
-                                                                                                            TMlazy_map(lazy_0_8,
-                                                                                                                       TMlam("h", board_template)
-                                                                                                                       )
-                                                                                                            )
-                                                                                                      ))
-                                                                                              )
-                                                                                        ))
-                                                                                )
-                                                                          ))
-                                            )
-                                        ))
-                            )
-                       ))
-        )
-  ))
- )
-))
 
 val TMlist_len =
 TMfix(
@@ -475,12 +309,6 @@ TMfix(
 //val () = println!(type_norm(term_type0(
 //        TMlist_len
 //        )))
-
-//val () = println!(term_eval0(
-//        TMapp(TMapp(TMlist_len, example_legal_board), TMint(0))
-//        ))
-
-//val () = println!(term_eval0(TMapp(TMapp(TMlist_len, TMapp(TMllist_to_list, all_posib)), TMint(0))))
 
 // now we need to write a lazy filter
 
@@ -526,3 +354,158 @@ end
 //        TMllist_next(filter_test)
 //        ))
 
+
+// ok, time to actually get started
+// this function up first
+// def is_safe(board: List[int], row: int) -> bool:
+//    # Checks if the last queen placed at 'row' doesn't conflict with earlier ones
+//    for i in range(row):
+//        if board[i] == board[row]:
+//            return False
+//        else:
+//            if abs(board[i] - board[row]) == row - i:
+//                return False
+//    return True
+
+val TMprint =
+        TMlam("b",
+              TMlam("i",
+                    TMlam("r",
+                          TMlet("_", TMopr("print", mylist_sing(TMvar"i")),
+                                           TMlet("_", TMopr("print", mylist_sing(TMvar"r")),
+                                                 TMlet("_", TMopr("prchr", mylist_sing(TMchr('\n'))), TMbtf(true))
+                                                 )
+                                 )
+                          )))
+
+val TMis_safe =
+let
+val board = TMvar"board"
+val row   = TMvar"row"
+val TMcheck_at =
+TMlam("b",
+    TMlam("i",
+          TMlam("r",
+                TMlet("board[i]", TMget_at(TMvar"b", TMvar"i"),
+                    TMlet("board[row]", TMget_at(TMvar"b", TMvar"r"),
+                          TMif0(TMeq(TMvar"board[i]", TMvar"board[row]"),
+                                TMbtf(false),
+                                TMif0(
+                                        TMeq(TMapp(TMabs, TMsub(TMvar"board[i]", TMvar"board[row]")), TMsub(TMvar"r", TMvar"i")),
+                                        TMbtf(false),
+                                        TMbtf(true)
+                                        )
+                                )
+                          )
+                    )
+                )
+        )
+    )
+in
+TMlam("board", TMlam("row",
+                     TMapp(TMall, TMmap(
+                             TMapp(TMapp(TMrange, TMint(0)), row),
+                             TMlam(
+                                     "index",
+                                     TMapp(TMapp(TMapp(TMcheck_at, board), TMvar"index"), row)
+                                     )
+                             ))
+                     ))
+end
+
+val example_legal_board =   TMlist_cons(TMint(7), TMlist_cons(TMint(3), TMlist_cons(TMint(0), TMlist_cons(TMint(2), TMlist_cons(TMint(5), TMlist_cons(TMint(1), TMlist_cons(TMint(6), TMlist_cons(TMint(4), TMlist_nil()))))))))
+val example_illegal_board = TMlist_cons(TMint(7), TMlist_cons(TMint(3), TMlist_cons(TMint(0), TMlist_cons(TMint(7), TMlist_cons(TMint(5), TMlist_cons(TMint(1), TMlist_cons(TMint(6), TMlist_cons(TMint(4), TMlist_nil()))))))))
+
+//val () = println!(type_norm(term_type0(TMis_safe)))
+//val () = println!("should be true ", term_eval0(
+//        TMapp(TMapp(TMis_safe, example_legal_board), TMint(7)) // eg. last one
+//        ))
+//
+//
+//
+//val () = println!("should be false ", term_eval0(
+//        TMapp(TMapp(TMis_safe, example_illegal_board), TMint(3)) // check 3rd one, should be illegal
+//))
+//
+
+// great, now this:
+// def place_queen_and_check(board: List[int], row: int, column: int) -> Tuple[bool, List[int]]:
+//    new_board = board[:]  # Make a copy to avoid mutation of the original board.
+//    new_board[row] = column
+//    return (is_safe(new_board, row), new_board)
+
+val TMplace_queen_and_check =
+let
+val board  = TMvar"board"
+val row    = TMvar"row"
+val column = TMvar"column"
+in
+TMlam("board", TMlam("row", TMlam("column",
+        TMlet("new_board",
+              TMset_at(board, row, column),
+              TMtup(
+                TMapp(TMapp(TMis_safe, TMvar"new_board"), row),
+                TMvar"new_board"
+                )
+              )
+      )))
+end
+
+//val () = println!(term_type0(TMplace_queen_and_check))
+
+
+// on to this one
+// def board_extend(boards: List[List[int]], row: int) -> List[List[int]]:
+//    N = 8  # Size of the board (8x8)
+//    new_boards = []
+//    for board in boards:
+//        # Generate all possible new boards for the current row
+//        possible_boards = [(place_queen_and_check(board, row, col)) for col in range(N)]
+//        # Use filter to include only the boards with safe queen placement
+//        safe_boards = list(filter(lambda x: x[0], possible_boards))
+//        # Extract the board configurations from the filtered tuples
+//        new_boards.extend([board for (safe, board) in safe_boards])
+//    return new_boards
+
+val TMboard_extend = 
+let
+val boards = TMvar"boards"
+val row    = TMvar"row"
+val board  = TMvar"board"
+in
+TMlam("boards", TMlam("row",
+    TMmap(TMflatten(
+          TMmap(
+               boards,
+               TMlam("board",
+                   TMlet("possible_boards", TMmap(TMrange_fn(0, 8),
+                                                  TMlam("col", TMapp(TMapp(TMapp(TMplace_queen_and_check, board), row), TMvar"col"))),
+                      TMfilter(TMvar"possible_boards", TMlam("x", TMfst(TMvar"x")))
+                       )
+                   )
+               )
+          ),
+          TMlam("x", TMsnd(TMvar"x"))
+    )))
+end
+
+//val () = println!(type_norm(term_type0(TMboard_extend)))
+
+
+// initial_board: List[int] = [-1] * N
+// current_boards: List[List[int]] = [initial_board]
+//
+// all_boards = reduce(board_extend, range(N), current_boards)
+
+// note: we're using fold_left, so we need to give it arguments in function accumulator list order
+val initial_board = TMlist_cons(TMint(~1), TMlist_cons(TMint(~1), TMlist_cons(TMint(~1), TMlist_cons(TMint(~1), TMlist_cons(TMint(~1), TMlist_cons(TMint(~1), TMlist_cons(TMint(~1), TMlist_cons(TMint(~1), TMlist_nil()))))))))
+val current_boards = TMlist_cons(initial_board, TMlist_nil())
+
+
+val all_boards = TMapp(TMapp(TMapp(
+  TMfold_left, TMboard_extend
+  ), current_boards), TMrange_fn(0, 8))
+
+val () = println!(type_norm(term_type0(all_boards)))
+
+val () = println!(term_eval0(TMlist_head(all_boards)))

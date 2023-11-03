@@ -535,15 +535,16 @@ val () = term_type1_ck(t2, TPlist(T1), c0, "Error type checking list_cons. t2 is
 }
 | "list_nilq" => TPbtf where {
 val-mylist_cons(t1, ts) = ts
-val-TPlist(_) = term_type1(t1, c0) (* checks that t1 is a list of some type*)
+val () = term_type1_ck(t1, TPlist(tpxyz_new()), c0, "Error type checking list_nilq. t1 is not a list") (* checks that t1 is a list of some type*)
 }
 | "list_consq" => TPbtf where {
 val-mylist_cons(t1, ts) = ts
-val-TPlist(_) = term_type1(t1, c0) (* checks that t1 is a list of some type*)
+val () = term_type1_ck(t1, TPlist(tpxyz_new()), c0, "Error type checking list_nilq. t1 is not a list") (* checks that t1 is a list of some type*)
 }
 | "list_uncons1" => t where {
 val-mylist_cons(t1, ts) = ts
-val-TPlist(t) = term_type1(t1, c0)
+val t = tpxyz_new()
+val () = term_type1_ck(t1, TPlist(t), c0, "Error while typechecking list_uncons2, argument is not a list")
 }
 | "list_uncons2" => t where {
 val-mylist_cons(t1, ts) = ts
@@ -574,7 +575,8 @@ val () = term_type1_ck(t1, TPllist(tpxyz_new()), c0,
 }
 | "list_consq" => TPbtf where {
 val-mylist_cons(t1, ts) = ts
-val-TPllist(_) = term_type1(t1, c0) (* checks that t1 is a list of some type*)
+  val () = term_type1_ck(t1, TPllist(tpxyz_new()), c0,
+  "Error while typechecking llist_consq, t1 is not of type TPllist(tpxyz_new()). Code 579")
 }
 | "llist_uncons1" => T1 where {
 val-mylist_cons(t1, ts) = ts

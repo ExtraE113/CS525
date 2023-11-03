@@ -74,33 +74,6 @@ TMternary_opr_as_fn(opr:string) =
 TMlam("arg1", TMlam("arg2", TMlam("arg3", TMopr(opr, mylist_cons(TMvar"arg1", mylist_pair(TMvar"arg2", TMvar"arg3"))))))
 
 
-(** UNTESTED **)
-val
-TMzip_raw =
-let
-val l1_element_type = tpxyz_new()
-val l2_element_type = tpxyz_new()
-val input1 = TManno(TMvar"input1", TPlist(l1_element_type))
-val input2 = TManno(TMvar"inpu2", TPlist(l2_element_type))
-in
-TMfix
-(
-"cont",
-"input1",
-TMlam(
-"input2",
-      TMif0(
-          TMlist_nilq(input1),
-          TMlist_nil(),
-          TMlist_cons(
-                  TMtup(TMlist_head(input1), TMlist_head(input2)),
-                  TMapp(TMapp(TMvar"cont", TMlist_tail(input1)), TMlist_tail(input2))
-
-          )
-      ))
-)
-end
-
 val TMlist_concat_raw =
 let
 val element_type = tpxyz_new()

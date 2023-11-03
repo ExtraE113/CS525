@@ -485,6 +485,7 @@ TMfix(
         )
 end
 //
+(*
 val () = println!(term_type0(TMordered_permute))
 
 val one_to_three_inclusive = TMapp(TMapp(TMlazy_range, TMint(1)), TMint(4))
@@ -519,3 +520,4 @@ val () = println!(term_eval0(TMfst(
 val () = println!(term_eval0(TMfst(
         TMllist_next(TMllist_next(TMllist_next(TMllist_next(TMllist_next(TMlazy_map(TMapp(TMordered_permute, zero_to_five), TMllist_to_list))))))
 )))
+*)
