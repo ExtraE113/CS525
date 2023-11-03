@@ -1,3 +1,4 @@
+from functools import reduce
 from typing import List, Tuple
 
 def is_safe(board: List[int], row: int) -> bool:
@@ -29,9 +30,7 @@ N = 8  # Defining N for clarity, as it is used multiple times
 initial_board: List[int] = [-1] * N
 current_boards: List[List[int]] = [initial_board]
 
-# Iteratively apply board_extend to each row
-for next_row in range(N):  # From 0 to 7, for each row
-    current_boards = board_extend(current_boards, next_row)
-
+current_boards = reduce(board_extend, range(N), current_boards)
 # Now, current_boards should have all solutions for the 8 queens problem
 print(f"Number of solutions: {len(current_boards)}")
+print(current_boards[0])
