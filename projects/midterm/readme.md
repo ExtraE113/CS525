@@ -18,6 +18,14 @@ I make extensive use of list-transformation functions, specifically:
 Those are all implemented in pure lambda calculus, and for the most part have (commented out)
 tests.
 
+One pattern I found myself using alot was wrapping lambda calculus terms in functions that 
+return the term appled to the function arguments. For example `TMmap()`.
+
+This was useful for a few reasons. For one, it let me write cleaner code because I didn't have
+to make as many manual calls to `TMapp`. But more importantly, it let me have `TMmap()` act as
+a "generic" like we talked about in your office, by instantiating a new copy for each invocation
+to reset type associations.
+
 I've also made some minor changes to midterm.sats.
 
 term_type1_ck now takes another argument `msg`; if the typecheck fails it prints msg.
