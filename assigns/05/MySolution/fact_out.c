@@ -2,39 +2,9 @@
 
 #include "runtime2.h"
 
-/* ****** ****** */
-
-extern
-void*
-mymalloc(size_t n) {
-  void* p0;
-  p0 = malloc(n);
-  if (p0 != 0) return p0;
-  fprintf(stderr, "myalloc failed!!!\n");
-  exit(1);
-}
 
 /* ****** ****** */
 
-extern
-lamval1
-LAMVAL_print(lamval1 x)
-{
-  int tag;
-  tag = x->tag;
-  switch( tag )
-  {
-    case TAGcfp:
-      printf("<lamval1_cfp>"); break;
-    case TAGint:
-      printf("%i", ((lamval1_int)x)->data); break;
-    case TAGstr:
-      printf("%s", ((lamval1_str)x)->data); break;
-    default: printf("Unrecognized tag = %i", tag);
-  }
-}
-
-/* ****** ****** */
 
 /*
 fun

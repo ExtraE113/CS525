@@ -6,18 +6,6 @@
 
 /* ****** ****** */
 
-extern
-void*
-mymalloc(size_t n) {
-  void* p0;
-  p0 = malloc(n);
-  if (p0 != 0) return p0;
-  fprintf(stderr, "myalloc failed!!!\n");
-  exit(1);
-}
-
-/* ****** ****** */
-
 /*
 HX-2023-11-05:
 Please translate the following function
@@ -27,10 +15,7 @@ fun
 fact2(n:int): int =
 let
 //
-(*
-How do you handle an inner function like
-loop in your translation?
-*)
+(* How do you handle an inner function like loop in your translation? *)
 //
 fun
 loop(i: int, r: int): int =
@@ -43,5 +28,39 @@ end
 */
 
 /* ****** ****** */
+
+lamval1
+fact2__inner_function__loop(lamval1 env[], lamval1 i, lamval1 r){
+  lamval1 n = env[0];
+  lamval1 ret0;
+  lamval1 test = LAMOPR_ilt(i, n);
+  if (((lamval1_int)test)->data) {
+    ret0 = fact2__inner_function__loop(env, LAMOPR_add(i, LAMVAL_int(1)), LAMOPR_mul(LAMOPR_add(i, LAMVAL_int(1)), r));
+  } else {
+    ret0 = r;
+  }
+  return ret0;
+}
+
+lamval1
+fact2(lamval1 x)
+{
+  lamval1 ret0;
+  lamval1 loop;
+  loop = mymalloc(sizeof(lamval0_cfp));
+  loop->tag = TAGcfp;
+  ((lamval1_cfp)loop)->fp = (lamval1 (*)(lamval1 *, ...)) fact2__inner_function__loop;
+  lamval1 envc[] = {x};
+  ((lamval1_cfp)loop)->env = envc;
+  ret0 = ((lamval1_cfp)loop)->fp(((lamval1_cfp)loop)->env, LAMVAL_int(0), LAMVAL_int(1));
+  return ret0;
+}
+
+int main() {
+  int N = 10;
+  printf("fact(%i) = ", N);
+  LAMVAL_print(fact2(LAMVAL_int(N))); printf("\n"); return 0;
+}
+
 
 /* end of [CS525-2023-Fall/assigns/assign05/Solution/fact2_out.c] */
