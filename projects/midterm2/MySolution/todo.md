@@ -1,0 +1,22 @@
+We need to:  
+-[x] add type inference for  
+    -[x] "print"  
+    -[x] "prchr"  
+    -[x] "prstr"  
+    -[x] "ref_get"  
+    -[x] "ref_set"  
+    -[x] "ref_new"  
+-[ ] implement and add type inference for:
+    -[x] list_nilq 
+    -[x] list_consq 
+    -[x] list_uncons1
+    -[x] list_uncons2 
+    -[x] llist_nilq
+    -[x] llist_consq 
+    -[x] llist_uncons1 
+    -[x] llist_uncons2
+-[x] implement lists 
+-[x] and lazy lists by adding some code to midterm_eval.dats.
+-[x] implement list_permute_string, 
+-[x] nqueen_puzzle_solve, 
+-[x] and word_buddy_stream in lambda calculus (translated from the sml and python example code).
