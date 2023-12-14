@@ -24,7 +24,6 @@ extern
 fun
 unique_symbol(): string
 
-//todo this doesn't work
 implement
 unique_symbol() =
 (symbol) where {
@@ -39,7 +38,14 @@ term_compile(t0) =
   out where
 {
   val (a, hoisted) = term_compile1(t0, "")
-  val out = strptr2string(stringlst_concat($list{string}("#include \"runtime2.h\"", hoisted, a)))
+  val out = strptr2string(stringlst_concat($list{string}("#include \"runtime_final.h\"", hoisted,
+    "int main(void) {\n",
+    "  Context c = *create_hash_map();\n",
+    "  LAMVAL_print(",
+    a,
+    ");\n}\n"
+
+    )))
 }
 
 (*****)
@@ -50,6 +56,7 @@ implement
 term_compile1(t: term, e0) =
 (
 case- t of
+| TMlet(varname, value, body) => term_compile1(TMapp(TMlam(varname, body), value), e0)
 | TMif0(test, t_branch, f_branch) => (out, hoisted) where {
   val (test_term,     hoisted_one)   = term_compile1(test, e0)
   val (t_branch_term, hoisted_two)   = term_compile1(t_branch, e0)
@@ -58,8 +65,9 @@ case- t of
   val if_symbol = unique_symbol()
   val if_expression = strptr2string(stringlst_concat($list{string}(
   "lamval1\n",
-  if_symbol, "(context c) {\n",
-  "  if (", test_term, ") {\n",
+  if_symbol, "(Context c) {\n",
+  //    (((lamval1_int)tmp1)->data)
+  "  if (((lamval1_int)", test_term, ")->data) {\n",
   "    return ", t_branch_term, ";\n",
   "  } else {\n",
   "    return ", f_branch_term, ";\n",
@@ -79,29 +87,28 @@ case- t of
     val (arg_term, hoisted_two) = term_compile1(a, e0)
 
     val hoisted = strptr2string(stringlst_concat($list{string}(hoisted_one, "\n\n", hoisted_two)))
-
-    val out = strptr2string(stringlst_concat($list{string}(lam_term, "(", arg_term, ")")))
+    //                                                    (((lamval1_clo)lam_term)->fp)((((lamval1_clo)lam_term)->c), arg_term)
+    val out = strptr2string(stringlst_concat($list{string}("(((lamval1_clo)",lam_term, ")->fp)(", arg_term, ", *(((lamval1_clo)", lam_term, ")->c))")))
   }
-| TMfix(function_name, varname, body) => (out, hoisted) where {
-  val (body_term, hoisted) = term_compile1(TMlam(varname, body), e0)
-  val out = strptr2string(stringlst_concat($list{string}(
-    "  c = extend_context(c, \"", function_name, "\", ", body_term, ");\n",
-    "  retrieve_variable(c, \"", function_name, "\")"
-    )))
-}
 | TMlam(varname, body) => (out, hoisted) where {
+  val (out, hoisted) = term_compile1(TMfix("unused", varname, body), e0)
+}
+| TMfix(source_function_name, varname, body) => (out, hoisted) where {
     val function_name = unique_symbol()
     val function_type = "lamval1 \n"
     val e0_inner = strptr2string(stringlst_concat($list{string}(e0, function_name, "__")))
 
     val arg_open = "(lamval1 "
-    //  val argument_name = strptr2string(stringlst_concat($list{string}(e0_inner, varname)))
     val argument_name = varname
-    val arg_close = ", context c) \n"
+    val arg_close = ", Context c) \n"
 
     val arg = strptr2string(stringlst_concat($list{string}(arg_open, argument_name, arg_close)))
 
-    val open_fn = strptr2string(stringlst_concat($list{string}("{\n  c = extend_context(c, \"", argument_name, "\", ",  argument_name , ");\n  lamval1 ret0;\n\n")))
+    val open_fn = strptr2string(stringlst_concat($list{string}(
+      "{\n  c = *extend_context(&c, \"", argument_name, "\", ",  argument_name , ");\n",
+      "  c = *extend_context(&c, \"", source_function_name, "\", close(", function_name , ", c));\n",
+      "  lamval1 ret0;\n\n"
+      )))
 
     val (body: string, hoisted_prime: string) = term_compile1(body, e0_inner)
 
@@ -112,7 +119,7 @@ case- t of
     val full_fn = strptr2string(full_fn_as_pointer)
 
     val hoisted = strptr2string(stringlst_concat($list{string}(hoisted_prime, "\n\n", full_fn)))
-    val out = function_name
+    val out = strptr2string(stringlst_concat($list{string}("close(", function_name, ", c)")))
   }
 | TMopr(nm, ts) => (out, hoisted) where {
 
@@ -124,7 +131,7 @@ case- t of
     case- nm of
     | ">=" => gen where {
         val- mylist_cons(a, mylist_cons(b, mylist_nil())) = bodies
-        val gen = strptr2string(stringlst_concat($list{string}("LAMOPR_igt(", a, ", ", b, ")")))
+        val gen = strptr2string(stringlst_concat($list{string}("LAMOPR_ige(", a, ", ", b, ")")))
       }
     | "+" => gen where {
         val- mylist_cons(a, mylist_cons(b, mylist_nil())) = bodies
@@ -134,6 +141,17 @@ case- t of
         val- mylist_cons(a, mylist_cons(b, mylist_nil())) = bodies
         val gen = strptr2string(stringlst_concat($list{string}("LAMOPR_sub(", a, ", ", b, ")")))
       }
+    | "*" => gen where {
+      val- mylist_cons(a, mylist_cons(b, mylist_nil())) = bodies
+      val gen = strptr2string(stringlst_concat($list{string}("LAMOPR_mul(", a, ", ", b, ")")))
+    }
+    | ">" => gen where {
+      val- mylist_cons(a, mylist_cons(b, mylist_nil())) = bodies
+      val gen = strptr2string(stringlst_concat($list{string}("LAMOPR_igt(", a, ", ", b, ")")))
+    }
+//    | a => ""  where {
+//      val () = println!("Unknown operator: ", a)
+//    }
     )
 
   }
@@ -142,10 +160,23 @@ case- t of
   ""
  )
 | TMvar(a) => (
-  strptr2string(stringlst_concat($list{string}("retrieve_variable(c, \"", a, "\")"))),
+  strptr2string(stringlst_concat($list{string}("retrieve_variable(&c, \"", a, "\")"))),
   ""
   )
-
+| TMtup(a, b) => (out, hoisted) where {
+  val (a, hoisted_one) = term_compile1(a, e0)
+  val (b, hoisted_two) = term_compile1(b, e0)
+  val hoisted = strptr2string(stringlst_concat($list{string}(hoisted_one, "\n\n", hoisted_two)))
+  val out = strptr2string(stringlst_concat($list{string}("LAMOPR_tup(", a, ", ", b, ")")))
+ }
+| TMfst(a) => (out, hoisted) where {
+  val (a_term, hoisted) = term_compile1(a, e0)
+  val out = strptr2string(stringlst_concat($list{string}("LAMOPR_fst(", a_term, ")")))
+ }
+| TMsnd(a) => (out, hoisted) where {
+val (a_term, hoisted) = term_compile1(a, e0)
+  val out = strptr2string(stringlst_concat($list{string}("LAMVAL_snd(", a_term, ")")))
+}
 )
 
 fun

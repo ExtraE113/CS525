@@ -1,27 +1,23 @@
-######
-PATSCC=patscc
-MYATSCC=myatscc
-######
-all::
-all:: \
-midterm_main_dats
-######
-test:: \
-midterm_main_dats; ./$<
-######
-# midterm_main_dats: \
-# midterm_main.dats; \
-# $(MYATSCC) midterm_main.dats
-######
-midterm_main_dats: \
-midterm_main.dats; \
-$(PATSCC) -O2 -D_GNU_SOURCE -DATS_MEMALLOC_GCBDW -o $@ $< -lgc
-######
-clean:: ; rm -f *~
-######
-cleanall:: clean
-cleanall:: ; rm -f midterm_main_dats
-cleanall:: ; rm -f midterm_main_dats.c
-######
+# this target is for the compiler. input: final_main.dats and final_compile.dats and final_compile.sats
+# output: final_main_dats
 
-############ end of [Makefile] ############
+final_main_dats: final_main.dats final_compile.dats final_compile.sats
+	myatscc final_main.dats
+
+# this target is for the generated code. input: final_main_dats runtime_final.h
+# output: test.c
+test.c: final_main_dats runtime_final.h
+	./final_main_dats > test.c
+
+# this target is for the executable. input: test.c
+# output: test.out
+test.out: test.c
+	gcc test.c -o test.out
+
+# this target is make all
+all: final_main_dats test.c test.out
+
+# this target is for running the executable. input: test.out
+# output: the result of the program
+run: test.out
+	./test.out

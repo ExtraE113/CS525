@@ -203,6 +203,7 @@ fprint!(out, "VALfix(", "...", ")")
 #include "./midterm_tpck.dats"
 (* ****** ****** *)
 #include "./midterm_eval.dats"
+#include "./final_compile.dats"
 (* ****** ****** *)
 #include "./midterm_lib0.dats"
 (* ****** ****** *)
