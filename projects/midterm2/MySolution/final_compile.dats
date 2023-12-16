@@ -27,7 +27,7 @@ unique_symbol(): string
 implement
 unique_symbol() =
 (symbol) where {
-  val num: int = g0float2int($STDLIB.drand48 () * 1000)
+  val num: int = g0float2int($STDLIB.drand48 () * 1000000)
   val num_string: string = tostring_int(num)
   val symbol: string = strptr2string(stringlst_concat($list{string}("sym", num_string)))
 }
@@ -94,6 +94,8 @@ case- t of
   val (out, hoisted) = term_compile1(TMfix("unused", varname, body), e0)
 }
 | TMfix(source_function_name, varname, body) => (out, hoisted) where {
+    val varname = strptr2string(stringlst_concat($list{string}("var_", varname)))
+    val source_function_name = strptr2string(stringlst_concat($list{string}("var_", source_function_name)))
     val function_name = unique_symbol()
     val function_type = "lamval1 \n"
     val e0_inner = strptr2string(stringlst_concat($list{string}(e0, function_name, "__")))
@@ -149,9 +151,40 @@ case- t of
       val- mylist_cons(a, mylist_cons(b, mylist_nil())) = bodies
       val gen = strptr2string(stringlst_concat($list{string}("LAMOPR_igt(", a, ", ", b, ")")))
     }
-//    | a => ""  where {
-//      val () = println!("Unknown operator: ", a)
-//    }
+    | "llist_new" => "LAMVAL_nil()"
+    | "llist_nilq" => gen where {
+      // check tag. return tag == TAGnil
+      val- mylist_cons(a, mylist_nil()) = bodies
+      val gen = strptr2string(stringlst_concat($list{string}("LAMVAL_int(LAMVAL_tag(", a, ") == TAGnil ? 1 : 0)")))
+    }
+    | "llist_cons" => gen where {
+      val- mylist_cons(a, mylist_cons(b, mylist_nil())) = bodies
+      val gen = strptr2string(stringlst_concat($list{string}("LAMVAL_tup(", a, ", ", b, ")")))
+    }
+    | "llist_uncons1" => gen where {
+      val- mylist_cons(a, mylist_nil()) = bodies
+      val gen = strptr2string(stringlst_concat($list{string}("LAMOPR_fst(", a, ")")))
+    }
+    | "llist_uncons2" => gen where {
+      val- mylist_cons(a, mylist_nil()) = bodies
+      val gen = strptr2string(stringlst_concat($list{string}("LAMOPR_snd(", a, ")")))
+    }
+
+    | "list_new" => "LAMVAL_nil()"
+    | "list_cons" => gen where {
+      val- mylist_cons(a, mylist_cons(b, mylist_nil())) = bodies
+      val gen = strptr2string(stringlst_concat($list{string}("LAMVAL_tup(", a, ", ", b, ")")))
+    }
+
+    | "=" => gen where {
+      val- mylist_cons(a, mylist_cons(b, mylist_nil())) = bodies
+      val gen = strptr2string(stringlst_concat($list{string}("LAMOPR_eq(", a, ", ", b, ")")))
+    }
+
+    | a => ""  where {
+      val () = println!("Unknown operator: ", a)
+    }
+
     )
 
   }
@@ -160,14 +193,14 @@ case- t of
   ""
  )
 | TMvar(a) => (
-  strptr2string(stringlst_concat($list{string}("retrieve_variable(&c, \"", a, "\")"))),
+  strptr2string(stringlst_concat($list{string}("retrieve_variable(&c, \"var_", a, "\")"))),
   ""
   )
 | TMtup(a, b) => (out, hoisted) where {
   val (a, hoisted_one) = term_compile1(a, e0)
   val (b, hoisted_two) = term_compile1(b, e0)
   val hoisted = strptr2string(stringlst_concat($list{string}(hoisted_one, "\n\n", hoisted_two)))
-  val out = strptr2string(stringlst_concat($list{string}("LAMOPR_tup(", a, ", ", b, ")")))
+  val out = strptr2string(stringlst_concat($list{string}("LAMVAL_tup(", a, ", ", b, ")")))
  }
 | TMfst(a) => (out, hoisted) where {
   val (a_term, hoisted) = term_compile1(a, e0)
@@ -175,7 +208,12 @@ case- t of
  }
 | TMsnd(a) => (out, hoisted) where {
 val (a_term, hoisted) = term_compile1(a, e0)
-  val out = strptr2string(stringlst_concat($list{string}("LAMVAL_snd(", a_term, ")")))
+  val out = strptr2string(stringlst_concat($list{string}("LAMOPR_snd(", a_term, ")")))
+}
+| TManno(a, b) => term_compile1(a, e0)
+| TMnil() => ("LAMVAL_nil()", "")
+| a => ("", "") where {
+  val () = println!("Unknown term: ", a)
 }
 )
 

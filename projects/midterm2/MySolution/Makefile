@@ -4,6 +4,9 @@
 final_main_dats: final_main.dats final_compile.dats final_compile.sats
 	myatscc final_main.dats
 
+debug: final_main_dats
+	./final_main_dats
+
 # this target is for the generated code. input: final_main_dats runtime_final.h
 # output: test.c
 test.c: final_main_dats runtime_final.h

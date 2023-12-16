@@ -26,6 +26,7 @@ mymalloc(size_t n) {
 #define TAGstr 2
 #define TAGcfp 3 // closure-function-pointer
 #define TAGtup 4 // tuple
+#define TAGnil 5 // nil
 
 /* ****** ****** */
 
@@ -83,6 +84,12 @@ struct {
 } lamval0_tup;
 
 typedef lamval0_tup *lamval1_tup;
+
+typedef
+struct {
+    int tag;
+} lamval0_nil;
+typedef lamval0_nil *lamval1_nil;
 
 
 #define HASH_MAP_SIZE 100
@@ -188,6 +195,16 @@ LAMVAL_tup(lamval1 fst, lamval1 snd) {
   p0->snd = snd;
   return (lamval1) p0;
 }
+
+extern
+lamval1
+LAMVAL_nil() {
+  lamval1_nil p0;
+  p0 = mymalloc(sizeof(lamval0_nil));
+  p0->tag = TAGnil;
+  return (lamval1) p0;
+}
+
 /* ****** ****** */
 
 extern
@@ -225,6 +242,16 @@ LAMOPR_igt(lamval1 x, lamval1 y) {
     LAMVAL_int(((lamval1_int) x)->data > ((lamval1_int) y)->data ? 1 : 0);
 }
 
+extern
+lamval1
+LAMOPR_eq(lamval1 x, lamval1 y) {
+  /*
+  assert(x->tag == TAGint);
+  assert(y->tag == TAGint);
+  */
+  return
+    LAMVAL_int(((lamval1_int) x)->data == ((lamval1_int) y)->data ? 1 : 0);
+}
 /* ****** ****** */
 
 extern
@@ -396,6 +423,15 @@ LAMVAL_print(lamval1 x)
       printf("%i", ((lamval1_int)x)->data); break;
     case TAGstr:
       printf("%s", ((lamval1_str)x)->data); break;
+    case TAGtup:
+      printf("(");
+      LAMVAL_print(((lamval1_tup)x)->fst);
+      printf(", ");
+      LAMVAL_print(((lamval1_tup)x)->snd);
+      printf(")");
+      break;
+    case TAGnil:
+      printf("nil"); break;
     default: printf("Unrecognized tag = %i", tag);
   }
 }

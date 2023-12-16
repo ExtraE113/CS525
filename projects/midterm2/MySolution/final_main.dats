@@ -121,5 +121,14 @@ val TMkfact = TMfix(
 
 //val () = println!("kfact(5) = ", term_eval0(TMapp(TMkfact, TMtup(TMint(5), TMlam("x", TMvar"x")))))
 
-val out = term_compile(TMapp(TMkfact, TMtup(TMint(5), TMlam("x", TMvar"x"))))
-val () = println!(out)
+//val out = term_compile(TMapp(TMkfact, TMtup(TMint(5), TMlam("x", TMvar"x"))))
+//val () = println!(out)
+
+//val
+//closureTest =
+//TMapp(
+//    TMlam("x", TMlam("y", TMadd(TMvar"x", TMvar"y"))),
+//    TMint(10)
+//)
+//val out = term_compile(closureTest)
+//val () = println!(out)
