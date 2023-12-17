@@ -1,18 +1,14 @@
 (* ****** ****** *)
 //
-#include
-"share\
-/atspre_staload.hats"
+#include "share/atspre_staload.hats"
 //
 (* ****** ****** *)
-#staload
-"./../mylib/mylib.dats"
+#staload "./../mylib/mylib.dats"
 (* ****** ****** *)
 //
 #staload "./project.sats"
 //
-#include
-"./../HATS/libxatsopt.hats"
+#include "./../HATS/libxatsopt.hats"
 //
 (* ****** ****** *)
 

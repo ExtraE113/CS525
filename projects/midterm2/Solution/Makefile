@@ -24,4 +24,4 @@ cleanall:: ; rm -f midterm_main_dats
 cleanall:: ; rm -f midterm_main_dats.c
 ######
 
-############ end of [Makefile] ############
+############ end of [Makefile_old] ############

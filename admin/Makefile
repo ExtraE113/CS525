@@ -1,6 +1,6 @@
 ######
 #
-# A simple Makefile
+# A simple Makefile_old
 #
 ######
 
@@ -22,4 +22,4 @@ clean:: ; rm -f syllabus.log
 
 cleanall:: clean
 
-###### end of [Makefile] ######
+###### end of [Makefile_old] ######

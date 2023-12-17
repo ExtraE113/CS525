@@ -1,6 +1,6 @@
 ######
 #
-# A simple Makefile
+# A simple Makefile_old
 #
 ######
 
@@ -38,4 +38,4 @@ cleanall:: ; $(RMF) test01_cblist_dats
 
 ######
 
-###### end of [Makefile] ######
+###### end of [Makefile_old] ######

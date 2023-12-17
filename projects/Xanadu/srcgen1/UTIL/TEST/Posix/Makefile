@@ -1,6 +1,6 @@
 ######
 #
-# A simple Makefile
+# A simple Makefile_old
 #
 ######
 
@@ -51,4 +51,4 @@ RMF=rm -f
 
 ######
 
-###### end of [Makefile] ######
+###### end of [Makefile_old] ######

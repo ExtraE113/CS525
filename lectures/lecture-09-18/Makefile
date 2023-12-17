@@ -21,4 +21,4 @@ cleanall:: ; rm -f lecture-09-18_dats
 cleanall:: ; rm -f lecture-09-18_dats.c
 ######
 
-###### end of [Makefile] ######
+###### end of [Makefile_old] ######
